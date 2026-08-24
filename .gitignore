@@ -1,0 +1,135 @@
+# =========================================================
+# BICAP - .gitignore
+# =========================================================
+
+
+# =========================================================
+# IDE / Editor
+# =========================================================
+
+# IntelliJ IDEA
+.idea/
+*.iml
+*.iws
+*.ipr
+
+# VS Code
+.vscode/
+
+# Eclipse / Spring Tool Suite
+.classpath
+.project
+.settings/
+.sts4-cache/
+
+
+# =========================================================
+# Java / Spring Boot / Maven
+# =========================================================
+
+# Maven build output
+backend/target/
+
+# Gradle build output (if used later)
+backend/build/
+
+# Logs
+*.log
+backend/logs/
+
+
+# =========================================================
+# Node.js / Blockchain / Hardhat
+# =========================================================
+
+# Dependencies
+blockchain/node_modules/
+
+# Hardhat generated files
+blockchain/artifacts/
+blockchain/cache/
+
+# Coverage
+blockchain/coverage/
+
+# Other generated Node files
+blockchain/dist/
+
+# npm logs
+blockchain/npm-debug.log*
+blockchain/yarn-debug.log*
+blockchain/yarn-error.log*
+blockchain/pnpm-debug.log*
+
+
+# =========================================================
+# Docker / PostgreSQL
+# =========================================================
+
+# PostgreSQL persistent data
+postgres-data/
+
+# Docker local data
+docker-data/
+
+
+# =========================================================
+# Database Backup
+# =========================================================
+
+# PostgreSQL custom-format backup
+*.backup
+
+# PostgreSQL dump
+*.dump
+
+
+# =========================================================
+# Upload / Generated Files
+# =========================================================
+
+# User uploaded files
+
+# Temporary / generated files
+tmp/
+temp/
+output/
+
+
+# =========================================================
+# Operating System
+# =========================================================
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# macOS
+.DS_Store
+
+
+# =========================================================
+# Temporary / Backup Files
+# =========================================================
+
+*.tmp
+*.temp
+*.bak
+*.swp
+*.swo
+
+
+# =========================================================
+# Java generated files
+# =========================================================
+
+*.class
+*.hprof
+
+# Environment
+.env
+.env.*
+!.env.example
+# Hardhat Ignition generated deployment data
+blockchain/ignition/deployments/
