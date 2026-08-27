@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/farming-seasons")
+@RequestMapping("/api/farming-seasons")
 public class FarmingSeasonController {
 
     private final FarmingSeasonService farmingSeasonService;

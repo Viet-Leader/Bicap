@@ -14,7 +14,7 @@ import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/crops")
+@RequestMapping("/api/crops")
 public class CropController {
 
     private final CropService cropService;

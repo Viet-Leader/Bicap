@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/public/product-batches")
+@RequestMapping("/api/public/product-batches")
 public class PublicProductBatchController {
 
     private final ProductBatchService productBatchService;

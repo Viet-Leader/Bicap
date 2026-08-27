@@ -34,6 +34,16 @@ public class SecurityConfig {
         private static final String API_CROPS = "/api/crops/**";
         private static final String API_CROPS_ROOT = "/api/crops";
 
+        private static final String API_ACCOUNTS = "/api/accounts/**";
+        private static final String API_ACCOUNTS_ROOT = "/api/accounts";
+        private static final String API_ACCOUNT_PASSWORD = "/api/accounts/me/password";
+
+        private static final String API_FARMS = "/api/farms/**";
+        private static final String API_FARM_ME = "/api/farms/me";
+
+        private static final String API_RETAILERS = "/api/retailers/**";
+        private static final String API_RETAILERS_ROOT = "/api/retailers";
+
         private static final String API_PRODUCTS = "/api/products/**";
         private static final String API_PRODUCT_BATCHES = "/api/product-batches/**";
         private static final String API_PRODUCT_BATCHES_BY_PRODUCT = "/api/products/*/batches/**";
@@ -123,6 +133,31 @@ public class SecurityConfig {
                 */
                 .requestMatchers("/api/public/**")
                 .permitAll()
+
+                // =========================
+                // ACCOUNT, FARM, RETAILER
+                // =========================
+                .requestMatchers(HttpMethod.PUT, API_ACCOUNT_PASSWORD)
+                .hasAnyRole(
+                        RoleName.ADMIN.name(),
+                        RoleName.FARM.name(),
+                        RoleName.RETAILER.name()
+                )
+
+                .requestMatchers(API_ACCOUNTS_ROOT, API_ACCOUNTS)
+                .hasRole(RoleName.ADMIN.name())
+
+                .requestMatchers(HttpMethod.GET, API_FARM_ME)
+                .hasRole(RoleName.FARM.name())
+
+                .requestMatchers(HttpMethod.PUT, API_FARM_ME)
+                .hasRole(RoleName.FARM.name())
+
+                .requestMatchers(HttpMethod.GET, API_FARMS)
+                .hasAnyRole(RoleName.ADMIN.name(), RoleName.RETAILER.name())
+
+                .requestMatchers(API_RETAILERS_ROOT, API_RETAILERS)
+                .hasRole(RoleName.RETAILER.name())
 
                 // =========================
                 // CROP
@@ -223,17 +258,17 @@ public class SecurityConfig {
                 .hasRole(RoleName.FARM.name())
 
                 // Farm confirm
-                .requestMatchers(HttpMethod.PUT,
+                .requestMatchers(HttpMethod.PATCH,
                         API_ORDER_CONFIRM)
                 .hasRole(RoleName.FARM.name())
 
                 // Farm hoặc Retailer đều được cancel
-                .requestMatchers(HttpMethod.PUT,
+                .requestMatchers(HttpMethod.PATCH,
                         API_ORDER_CANCEL)
                 .hasAnyRole(RoleName.FARM.name(), RoleName.RETAILER.name())
 
                 // Admin complete
-                .requestMatchers(HttpMethod.PUT,
+                .requestMatchers(HttpMethod.PATCH,
                         API_ORDER_COMPLETE)
                 .hasRole(RoleName.ADMIN.name())
                 
