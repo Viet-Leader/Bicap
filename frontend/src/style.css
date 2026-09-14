@@ -1,16 +1,23 @@
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  font-family: 'DM Sans', sans-serif;
-  color: #20352f;
-  background: #f4f6f1;
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
+@layer base {
+  body {
+    @apply font-sans text-gray-100;
+    min-height: 100vh;
+    background: radial-gradient(circle at top left, #0f172a, #020617 80%);
+    background-attachment: fixed;
+  }
 }
 
-body { margin: 0; min-width: 320px; min-height: 100vh; }
-h1, h2, h3 { font-family: 'Space Grotesk', sans-serif; }
+@layer utilities {
+  .glass-panel {
+    @apply bg-white/5 backdrop-blur-xl border border-white/10 shadow-[0_4px_30px_rgba(0,0,0,0.1)];
+  }
+  .glass-panel-hover {
+    @apply hover:bg-white/10 hover:border-white/20 transition-all duration-300;
+  }
+}

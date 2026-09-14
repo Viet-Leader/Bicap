@@ -1,23 +1,43 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import DashboardLayout from '../layouts/DashboardLayout.vue'
-import TraceabilityView from '../views/TraceabilityView.vue'
-import DriverLogisticsView from '../views/DriverLogisticsView.vue'
-import FarmDashboardView from '../views/FarmDashboardView.vue'
+
+// Layouts
+import GuestLayout from '../layouts/GuestLayout.vue'
+import AdminLayout from '../layouts/AdminLayout.vue'
+
+// Views
+import Home from '../views/Home.vue'
+import Login from '../views/auth/Login.vue'
+import AdminDashboard from '../views/admin/Dashboard.vue'
+import AdminAccounts from '../views/admin/Accounts.vue'
+import AdminFarms from '../views/admin/Farms.vue'
+import AdminTransactions from '../views/admin/Transactions.vue'
 
 const router = createRouter({
   history: createWebHistory(),
   routes: [
     {
       path: '/',
-      component: DashboardLayout,
+      component: GuestLayout,
       children: [
-        { path: '', redirect: '/farm' },
-        { path: 'farm', component: FarmDashboardView },
-        { path: 'traceability', component: TraceabilityView },
-        { path: 'logistics', component: DriverLogisticsView },
-      ],
+        { path: '', component: Home, name: 'home' }
+      ]
     },
-  ],
+    {
+      path: '/login',
+      name: 'login',
+      component: Login
+    },
+    {
+      path: '/admin',
+      component: AdminLayout,
+      children: [
+        { path: '', component: AdminDashboard, name: 'admin-dashboard' },
+        { path: 'accounts', component: AdminAccounts, name: 'admin-accounts' },
+        { path: 'farms', component: AdminFarms, name: 'admin-farms' },
+        { path: 'transactions', component: AdminTransactions, name: 'admin-transactions' }
+      ]
+    }
+  ]
 })
 
 export default router
