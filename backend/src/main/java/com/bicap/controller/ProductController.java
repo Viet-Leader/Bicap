@@ -4,6 +4,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import com.bicap.dto.request.product.CreateProductRequest;
@@ -23,17 +24,24 @@ public class ProductController {
     private final ProductService productService;
 
     /**
-     * Danh sách sản phẩm của Farm hiện tại.
+     * Danh sách sản phẩm của Farm hiện tại, hoặc tất cả sản phẩm với Admin.
      */
     @GetMapping
-    public ResponseEntity<Page<ProductSummaryResponse>> getMyProducts(
+    public ResponseEntity<Page<ProductSummaryResponse>> getProducts(
             @RequestParam(required = false)
             String keyword,
-            Pageable pageable
+            Pageable pageable,
+            Authentication authentication
     ) {
 
+        boolean isAdmin = authentication.getAuthorities().stream()
+                .anyMatch(authority -> authority.getAuthority().equals("ROLE_ADMIN"));
+
         return ResponseEntity.ok(
-                productService.getMyProducts(
+                isAdmin ? productService.getAllProducts(
+                        keyword,
+                        pageable
+                ) : productService.getMyProducts(
                         keyword,
                         pageable
                 )

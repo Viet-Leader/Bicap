@@ -211,13 +211,7 @@ class ApiAuthorizationTest {
     }
 
     // ============================================================
-    // PRODUCT - FARM ONLY
-    //
-    // SecurityConfig uses /api/products/**, while the actual
-    // ProductController uses /products/**.
-    //
-    // These tests intentionally verify the intended authorization.
-    // If they fail with 200/other status, inspect the URL mismatch.
+    // PRODUCT - FARM CRUD, ADMIN READ-ONLY
     // ============================================================
 
     @Test
@@ -237,11 +231,11 @@ class ApiAuthorizationTest {
     }
 
     @Test
-    void productApi_admin_shouldReturn403() throws Exception {
+    void productList_admin_shouldReturn200() throws Exception {
         mockMvc.perform(
                 get("/api/products")
                         .with(user("admin").roles("ADMIN"))
-        ).andExpect(status().isForbidden());
+        ).andExpect(status().isOk());
     }
 
     // ============================================================
@@ -321,6 +315,22 @@ class ApiAuthorizationTest {
         mockMvc.perform(
                 post("/api/orders/checkout")
                         .with(user("admin").roles("ADMIN"))
+        ).andExpect(status().isForbidden());
+    }
+
+    @Test
+    void orderList_admin_shouldReturn200() throws Exception {
+        mockMvc.perform(
+                get("/api/orders")
+                        .with(user("admin").roles("ADMIN"))
+        ).andExpect(status().isOk());
+    }
+
+    @Test
+    void orderList_retailer_shouldReturn403() throws Exception {
+        mockMvc.perform(
+                get("/api/orders")
+                        .with(user("retailer").roles("RETAILER"))
         ).andExpect(status().isForbidden());
     }
 

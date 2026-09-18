@@ -27,6 +27,14 @@ public class OrderController {
                 .body(response);
     }
 
+    @GetMapping
+    public ResponseEntity<List<OrderResponse>> getAllOrders() {
+
+        return ResponseEntity.ok(
+                orderService.getAllOrders()
+        );
+    }
+
     @GetMapping("/retailer")
     public ResponseEntity<List<OrderResponse>> getRetailerOrders() {
 

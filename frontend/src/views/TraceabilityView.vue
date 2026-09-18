@@ -1,0 +1,8 @@
+<script setup>
+const events = [
+  { time: 'Today, 08:42', title: 'Quality inspection passed', place: 'Central packing house', detail: 'Batch BC-2408 · 1,240 kg' },
+  { time: 'Yesterday, 16:10', title: 'Harvest recorded', place: 'Green Valley Farm · Plot 08', detail: 'Organic produce · Grade A' },
+  { time: '24 Aug, 07:30', title: 'Crop cultivated', place: 'Green Valley Farm', detail: 'Seed lot GL-2026-04' },
+]
+</script>
+<template><section class="mx-auto max-w-4xl"><p class="text-xs font-bold uppercase tracking-[.22em] text-[#6f8e42]">Product journey</p><h1 class="mt-3 text-4xl font-bold">Traceability</h1><p class="mt-3 text-[#668078]">Follow every handoff from soil to shipment.</p><div class="mt-10 border border-[#dce4d8] bg-white p-6 sm:p-8"><div class="flex flex-col justify-between gap-4 border-b border-[#e4ebe0] pb-6 sm:flex-row sm:items-center"><div><p class="text-xs uppercase tracking-widest text-[#91a49b]">Selected batch</p><h2 class="mt-2 text-2xl font-bold">BC-2408 · Green Valley</h2></div><span class="w-fit bg-[#eaf3d3] px-3 py-2 text-xs font-bold text-[#58752d]">VERIFIED ON CHAIN</span></div><div class="mt-8 space-y-8"><article v-for="event in events" :key="event.time" class="relative border-l-2 border-[#d4e85b] pl-7"><span class="absolute -left-[7px] top-0 h-3 w-3 rounded-full bg-[#6f8e42] ring-4 ring-white"></span><p class="text-xs font-semibold text-[#6f8e42]">{{ event.time }}</p><h3 class="mt-1 text-lg font-bold">{{ event.title }}</h3><p class="mt-1 text-sm text-[#668078]">{{ event.place }}</p><p class="mt-2 text-xs text-[#91a49b]">{{ event.detail }}</p></article></div></div></section></template>

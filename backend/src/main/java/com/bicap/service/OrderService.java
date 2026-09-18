@@ -19,6 +19,9 @@ public interface OrderService {
 
     OrderResponse getFarmOrder(Long orderId);
 
+    // Admin (read-only)
+    List<OrderResponse> getAllOrders();
+
     // Farm
     OrderResponse confirmOrder(Long orderId);
 

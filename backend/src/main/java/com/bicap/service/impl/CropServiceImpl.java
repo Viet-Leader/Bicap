@@ -35,6 +35,15 @@ public class CropServiceImpl implements CropService {
         );
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public org.springframework.data.domain.Page<CropResponse> getPage(
+            org.springframework.data.domain.Pageable pageable) {
+
+        return cropRepository.findAllBy(pageable)
+                .map(cropMapper::toResponse);
+    }
+
     /**
      * Get crop by id.
      */

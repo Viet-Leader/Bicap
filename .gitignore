@@ -30,8 +30,12 @@
 # Maven build output
 backend/target/
 
-# Gradle build output (if used later)
+# Gradle build output
 backend/build/
+
+# Java compiled files
+*.class
+*.hprof
 
 # Logs
 *.log
@@ -39,7 +43,30 @@ backend/logs/
 
 
 # =========================================================
-# Node.js / Blockchain / Hardhat
+# Node.js / Vue / Frontend
+# =========================================================
+
+# Dependencies
+frontend/node_modules/
+
+# Vite / Vue build output
+frontend/dist/
+
+# Frontend coverage
+frontend/coverage/
+
+# Frontend temporary/generated files
+frontend/.vite/
+
+# npm logs
+frontend/npm-debug.log*
+frontend/yarn-debug.log*
+frontend/yarn-error.log*
+frontend/pnpm-debug.log*
+
+
+# =========================================================
+# Blockchain / Hardhat
 # =========================================================
 
 # Dependencies
@@ -49,11 +76,14 @@ blockchain/node_modules/
 blockchain/artifacts/
 blockchain/cache/
 
-# Coverage
+# Hardhat coverage
 blockchain/coverage/
 
-# Other generated Node files
+# Build output
 blockchain/dist/
+
+# Hardhat Ignition generated deployment data
+blockchain/ignition/deployments/
 
 # npm logs
 blockchain/npm-debug.log*
@@ -88,8 +118,6 @@ docker-data/
 # Upload / Generated Files
 # =========================================================
 
-# User uploaded files
-
 # Temporary / generated files
 tmp/
 temp/
@@ -121,15 +149,9 @@ Desktop.ini
 
 
 # =========================================================
-# Java generated files
+# Environment
 # =========================================================
 
-*.class
-*.hprof
-
-# Environment
 .env
 .env.*
 !.env.example
-# Hardhat Ignition generated deployment data
-blockchain/ignition/deployments/
