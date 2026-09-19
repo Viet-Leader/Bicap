@@ -1,0 +1,26 @@
+import api from './axiosClient'
+
+export const adminApi = {
+  login: (payload) => api.post('/auth/login', payload),
+  me: () => api.get('/auth/me'),
+  accounts: () => api.get('/accounts'),
+  account: (id) => api.get(`/accounts/${id}`),
+  createAccount: (payload) => api.post('/accounts', payload),
+  updateAccount: (id, payload) => api.put(`/accounts/${id}`, payload),
+  setAccountStatus: (id, status) => api.patch(`/accounts/${id}/status`, { status }),
+  farm: (id) => api.get(`/farms/${id}`),
+  farms: () => api.get('/farms'),
+  setFarmStatus: (id, status) => api.patch(`/farms/${id}/status`, { status }),
+  crops: () => api.get('/crops'),
+  cropPage: (params) => api.get('/crops/admin', { params }),
+  crop: (id) => api.get(`/crops/${id}`),
+  createCrop: (payload) => api.post('/crops', payload),
+  updateCrop: (id, payload) => api.put(`/crops/${id}`, payload),
+  products: (params) => api.get('/products', { params }),
+  orders: () => api.get('/orders'),
+  completeOrder: (id) => api.patch(`/orders/${id}/complete`),
+  notifications: () => api.get('/notifications'),
+  notification: (id) => api.get(`/notifications/${id}`),
+  markRead: (id) => api.patch(`/notifications/${id}/read`),
+  markAllRead: () => api.patch('/notifications/read-all'),
+}

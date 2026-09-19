@@ -12,6 +12,7 @@ import org.mapstruct.MappingTarget;
 import org.mapstruct.NullValuePropertyMappingStrategy;
 
 import java.util.List;
+import java.math.BigDecimal;
 
 @Mapper(
         componentModel = "spring",
@@ -58,7 +59,16 @@ public interface ProductMapper {
     @Mapping(target = "cropName", source = "crop.cropName")
     @Mapping(target = "farmName", source = "farm.farmName")
     @Mapping(target = "thumbnail", ignore = true)
+    @Mapping(target = "remainingQuantity", expression = "java(calculateRemainingQuantity(product))")
     ProductSummaryResponse toSummary(Product product);
+
+    default BigDecimal calculateRemainingQuantity(Product product) {
+        return product.getProductBatches().stream()
+                .map(batch -> batch.getRemainingQuantity() == null
+                        ? BigDecimal.ZERO
+                        : batch.getRemainingQuantity())
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+    }
 
     /**
      * Entity -> Detail Response

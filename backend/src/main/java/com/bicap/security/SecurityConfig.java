@@ -57,6 +57,7 @@ public class SecurityConfig {
         private static final String API_CART_ITEMS_ALL = "/api/carts/items/**";
 
         private static final String API_ORDER_CHECKOUT = "/api/orders/checkout";
+        private static final String API_ORDERS = "/api/orders";
         private static final String API_ORDER_RETAILER = "/api/orders/retailer/**";
         private static final String API_ORDER_FARM = "/api/orders/farm/**";
         private static final String API_ORDER_CONFIRM = "/api/orders/*/confirm";
@@ -181,6 +182,9 @@ public class SecurityConfig {
                 // PRODUCT (Farmer)
                 // =========================
 
+                .requestMatchers(HttpMethod.GET, API_PRODUCTS)
+                .hasAnyRole(RoleName.FARM.name(), RoleName.ADMIN.name())
+
                 .requestMatchers(API_PRODUCTS)
                 .hasRole(RoleName.FARM.name())
 
@@ -246,6 +250,11 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.POST,
                         API_ORDER_CHECKOUT)
                 .hasRole(RoleName.RETAILER.name())
+
+                // Admin xem toan bo don hang
+                .requestMatchers(HttpMethod.GET,
+                        API_ORDERS)
+                .hasRole(RoleName.ADMIN.name())
 
                 // Retailer xem đơn
                 .requestMatchers(HttpMethod.GET,

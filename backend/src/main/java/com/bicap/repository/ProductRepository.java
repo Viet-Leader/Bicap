@@ -32,6 +32,14 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     );
 
     /**
+     * Admin search across products from every farm.
+     */
+    Page<Product> findByProductNameContainingIgnoreCase(
+            String keyword,
+            Pageable pageable
+    );
+
+    /**
      * Farmer only accesses products of their own farm.
      */
     Optional<Product> findByProductIdAndFarmFarmId(

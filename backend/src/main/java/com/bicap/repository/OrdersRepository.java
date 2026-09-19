@@ -21,6 +21,8 @@ public interface OrdersRepository extends JpaRepository<Orders, Long> {
 
     List<Orders> findByFarmOrderByCreatedAtDesc(Farm farm);
 
+    List<Orders> findAllByOrderByCreatedAtDesc();
+
     List<Orders> findByStatus(OrderStatus status);
 
     Optional<Orders> findByOrderIdAndRetailer(

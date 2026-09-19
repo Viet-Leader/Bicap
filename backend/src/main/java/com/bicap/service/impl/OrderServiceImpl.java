@@ -169,6 +169,16 @@ public OrderResponse getFarmOrder(Long orderId) {
 }
 @Override
 @Transactional
+public List<OrderResponse> getAllOrders() {
+
+    return ordersRepository
+            .findAllByOrderByCreatedAtDesc()
+            .stream()
+            .map(orderMapper::toResponse)
+            .toList();
+}
+@Override
+@Transactional
 public OrderResponse checkout() {
 
     // Lấy Retailer hiện tại

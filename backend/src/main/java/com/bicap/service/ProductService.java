@@ -24,6 +24,12 @@ public interface ProductService {
             Pageable pageable
     );
 
+    // Admin (read-only)
+    Page<ProductSummaryResponse> getAllProducts(
+            String keyword,
+            Pageable pageable
+    );
+
     /**
      * Get product detail of current farmer.
      */

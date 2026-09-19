@@ -5,6 +5,8 @@ import com.bicap.dto.request.crop.UpdateCropRequest;
 import com.bicap.dto.response.crop.CropResponse;
 
 import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 public interface CropService {
 
@@ -12,6 +14,8 @@ public interface CropService {
      * Get all active crops.
      */
     List<CropResponse> getAll();
+
+    Page<CropResponse> getPage(Pageable pageable);
 
     /**
      * Get crop by id.

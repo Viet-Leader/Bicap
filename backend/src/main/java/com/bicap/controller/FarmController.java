@@ -1,6 +1,7 @@
 package com.bicap.controller;
 
 import com.bicap.dto.request.farm.UpdateFarmRequest;
+import com.bicap.dto.request.account.ChangeAccountStatusRequest;
 import com.bicap.dto.response.farm.FarmResponse;
 import com.bicap.service.FarmService;
 import jakarta.validation.Valid;
@@ -8,6 +9,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/farms")
@@ -54,6 +57,26 @@ public class FarmController {
 
         return ResponseEntity.ok(
                 farmService.getFarmById(farmId)
+        );
+    }
+
+    @GetMapping
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<List<FarmResponse>> getAllFarms() {
+
+        return ResponseEntity.ok(
+                farmService.getAllFarms()
+        );
+    }
+
+    @PatchMapping("/{farmId}/status")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<FarmResponse> changeFarmStatus(
+            @PathVariable Long farmId,
+            @Valid @RequestBody ChangeAccountStatusRequest request) {
+
+        return ResponseEntity.ok(
+                farmService.changeFarmStatus(farmId, request.getStatus())
         );
     }
 
