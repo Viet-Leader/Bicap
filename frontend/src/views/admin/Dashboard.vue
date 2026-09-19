@@ -71,7 +71,6 @@
     </div>
   </div>
 </template>
-
 <script setup>
 import OverviewCards from '../../features/dashboard/components/OverviewCards.vue'
 import Badge from '../../components/ui/Badge.vue'

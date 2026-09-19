@@ -6,6 +6,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.math.BigDecimal;
+
 @Getter
 @Setter
 @Builder
@@ -22,6 +24,8 @@ public class ProductSummaryResponse {
     private String farmName;
 
     private String unit;
+
+    private BigDecimal remainingQuantity;
 
     private String thumbnail;
 

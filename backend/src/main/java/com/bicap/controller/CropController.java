@@ -11,6 +11,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.prepost.PreAuthorize;
 
 @RestController
 @RequiredArgsConstructor
@@ -28,6 +31,13 @@ public class CropController {
         return ResponseEntity.ok(
                 cropService.getAll()
         );
+    }
+
+    @GetMapping("/admin")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<Page<CropResponse>> getPage(Pageable pageable) {
+
+        return ResponseEntity.ok(cropService.getPage(pageable));
     }
 
     /**

@@ -10,7 +10,7 @@
         <span class="text-2xl font-bold tracking-widest uppercase text-white">BICAP</span>
       </div>
 
-      <h2 class="text-2xl font-bold text-white mb-6 text-center">Node Authentication</h2>
+      <h2 class="text-2xl font-bold text-white mb-6 text-center">Đăng nhập quản trị</h2>
 
       <p v-if="errors.form" class="mb-4 rounded border border-error/40 bg-error/10 px-3 py-2 text-sm text-red-300">
         {{ errors.form }}
@@ -19,22 +19,22 @@
       <form @submit.prevent="handleLogin" class="space-y-5">
         <Input
           v-model="username"
-          label="Network ID / Username"
-          placeholder="Enter your assigned ID"
+          label="Tên đăng nhập"
+          placeholder="Nhập tên đăng nhập"
           :error="errors.username"
         />
         
         <Input
           v-model="password"
-          label="Passphrase"
+          label="Mật khẩu"
           type="password"
           placeholder="••••••••••••"
           :error="errors.password"
         />
 
         <div class="flex items-center justify-between mt-2">
-          <ToggleSwitch v-model="remember" label="Stay connected" />
-          <a href="#" class="text-sm font-mono text-primary hover:underline">Forgot key?</a>
+          <ToggleSwitch v-model="remember" label="Duy trì đăng nhập" />
+          <a href="#" class="text-sm font-mono text-primary hover:underline">Quên mật khẩu?</a>
         </div>
 
         <Button type="submit" variant="primary" class="w-full mt-4" size="lg" :disabled="isSubmitting">

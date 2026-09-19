@@ -13,6 +13,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import java.util.List;
+import com.bicap.common.enums.AccountStatus;
 
 @Service
 @RequiredArgsConstructor
@@ -72,6 +74,27 @@ public class FarmServiceImpl implements FarmService {
         Farm farm = getFarm(farmId);
 
         return farmMapper.toResponse(farm);
+    }
+
+    @Override
+    @Transactional
+    public List<FarmResponse> getAllFarms() {
+
+        return farmRepository.findAll()
+                .stream()
+                .map(farmMapper::toResponse)
+                .toList();
+    }
+
+    @Override
+    @Transactional
+    public FarmResponse changeFarmStatus(Long farmId, AccountStatus status) {
+
+        Farm farm = getFarm(farmId);
+        farm.setStatus(status.name());
+        farm.getAccount().setStatus(status);
+
+        return farmMapper.toResponse(farmRepository.save(farm));
     }
 
     // ==========================================================

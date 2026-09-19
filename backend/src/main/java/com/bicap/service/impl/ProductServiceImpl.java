@@ -21,6 +21,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -101,6 +102,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
 @Override
+@Transactional(readOnly = true)
 public Page<ProductSummaryResponse> getMyProducts(
         String keyword,
         Pageable pageable
@@ -125,6 +127,26 @@ public Page<ProductSummaryResponse> getMyProducts(
                 pageable
         );
 
+    }
+
+    return products.map(this::toSummary);
+}
+
+@Override
+@Transactional(readOnly = true)
+public Page<ProductSummaryResponse> getAllProducts(
+        String keyword,
+        Pageable pageable
+) {
+    Page<Product> products;
+
+    if (keyword == null || keyword.isBlank()) {
+        products = productRepository.findAll(pageable);
+    } else {
+        products = productRepository.findByProductNameContainingIgnoreCase(
+                keyword.trim(),
+                pageable
+        );
     }
 
     return products.map(this::toSummary);
