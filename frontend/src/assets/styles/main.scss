@@ -1,0 +1,64 @@
+@use "variables" as *;
+@use "glass" as *;
+@use "animations" as *;
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Space+Grotesk:wght@500;600;700&display=swap');
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Inter', sans-serif;
+  background-color: $bg-deep;
+  color: $text-primary;
+  min-height: 100vh;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Space Grotesk', sans-serif;
+  color: $text-primary;
+}
+
+code, .hash {
+  font-family: 'JetBrains Mono', monospace;
+}
+
+a {
+  color: $primary-cyan;
+  text-decoration: none;
+  transition: color 0.2s;
+  
+  &:hover {
+    color: lighten($primary-cyan, 10%);
+  }
+}
+
+// Utility classes for layout
+.container {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+.flex { display: flex; }
+.flex-col { flex-direction: column; }
+.items-center { align-items: center; }
+.justify-between { justify-content: space-between; }
+.justify-center { justify-content: center; }
+.gap-2 { gap: 8px; }
+.gap-4 { gap: 16px; }
+.w-full { width: 100%; }
+.mt-4 { margin-top: 16px; }
+.mb-4 { margin-bottom: 16px; }
+
+// Text colors
+.text-green { color: $primary-green; }
+.text-cyan { color: $primary-cyan; }
+.text-amber { color: $accent-amber; }
+.text-red { color: $accent-red; }
+.text-muted { color: $text-muted; }

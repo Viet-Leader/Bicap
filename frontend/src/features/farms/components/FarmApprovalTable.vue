@@ -16,16 +16,20 @@
       </template>
       <template #actions="{ row }">
         <div class="flex gap-2">
-          <Button v-if="row.status === 'Pending'" variant="primary" size="sm">Approve</Button>
-          <Button v-if="row.status === 'Pending'" variant="danger" size="sm">Reject</Button>
-          <Button variant="outline" size="sm">View Details</Button>
+          <Button v-if="row.status === 'Pending'" variant="primary" size="sm" @click="updateStatus(row, 'Approved')">Approve</Button>
+          <Button v-if="row.status === 'Pending'" variant="danger" size="sm" @click="updateStatus(row, 'Rejected')">Reject</Button>
+          <Button variant="outline" size="sm" @click="selectedFarm = row">View Details</Button>
         </div>
       </template>
     </Table>
+    <p v-if="selectedFarm" class="mt-3 text-sm text-gray-400">
+      Selected: <span class="text-white">{{ selectedFarm.owner }}</span> at {{ selectedFarm.location }}
+    </p>
   </div>
 </template>
 
 <script setup>
+import { ref } from 'vue'
 import Table from '../../../components/ui/Table.vue'
 import Badge from '../../../components/ui/Badge.vue'
 import Button from '../../../components/ui/Button.vue'
@@ -45,4 +49,10 @@ const farms = [
   { farmId: 'FRM-8822', owner: 'Sunrise Ag', location: 'Dak Lak, VN', certification: 'GlobalGAP', status: 'Approved' },
   { farmId: 'FRM-8823', owner: 'Highland Beans', location: 'Gia Lai, VN', certification: null, status: 'Rejected' },
 ]
+
+const selectedFarm = ref(null)
+
+const updateStatus = (farm, status) => {
+  farm.status = status
+}
 </script>
