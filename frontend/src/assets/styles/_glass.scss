@@ -1,3 +1,5 @@
+@use "./_variables.scss" as *;
+
 @mixin glass-card {
   background: $bg-glass;
   backdrop-filter: blur(20px) saturate(180%);

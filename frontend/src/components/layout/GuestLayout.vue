@@ -1,38 +1,9 @@
 <template>
-  <div class="guest-layout">
-    <header class="guest-header">
-      <div class="container flex justify-between items-center">
-        <router-link to="/" class="logo-text">BICAP</router-link>
-        <nav class="flex gap-4">
-          <router-link to="/login" class="text-cyan">Đăng nhập</router-link>
-        </nav>
-      </div>
-    </header>
-    <main>
+  <div class="bg-surface font-body-md text-on-surface">
+    <header class="fixed top-0 w-full z-50 bg-surface/70 backdrop-blur-md border-b border-outline-variant"><div class="h-16 w-full px-margin-desktop flex items-center justify-between"><div class="flex items-center gap-xs"><img alt="BICAP agricultural blockchain logo, minimalist flat design, leaf and chain link icon, #0BDA51 green color." class="h-8 w-auto object-contain" src="https://lh3.googleusercontent.com/aida/AEtjO1Xm98A0LA5ROnp3EGYEEhnO7RUiEeS1xDasv8LbZS1LW6dzraBRdYdgTD9P8hY_AWKNKJGqPuAMiRHlq70zCfAKU3CDPpeApVXtm694KAQz2Mfy4JHrrXSnsbXt9rUf5uKHISujZ3B_JFccktlEtBxunSrPxD7mtu3wSSF7gYtVnGvlUsZf6OisOvu8951LmEKCQ82ACFZFwIjm1C5g20bbe3cyatBUU4lFtNuwMY5Hi8QjLDAe_l5pU3Q"/><span class="font-headline-md text-headline-md text-on-surface">BiCap</span></div><nav class="hidden lg:flex items-center gap-md" data-active-classes="text-primary font-bold"><router-link class="text-body-md text-primary font-bold" to="/">Trang chủ</router-link><a class="text-body-md text-on-surface-variant hover:text-on-surface transition-colors" data-path="san-giao-dich" href="/">Sàn giao dịch</a><a class="text-body-md text-on-surface-variant hover:text-on-surface transition-colors" data-path="truy-xuat" href="/">Truy xuất</a><a class="text-body-md text-on-surface-variant hover:text-on-surface transition-colors" data-path="ve-chung-toi" href="/">Về chúng tôi</a><a class="text-body-md text-on-surface-variant hover:text-on-surface transition-colors" data-path="lien-he" href="/">Liên hệ</a></nav><div class="flex items-center gap-sm"><router-link class="text-button font-button text-on-surface-variant hover:text-on-surface px-base" to="/login">Đăng nhập</router-link><button class="bg-primary text-on-primary font-button text-button px-md py-base border-2 border-on-primary-fixed hover:bg-surface-container-lowest hover:text-primary transition-all">Đăng ký ngay</button><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center ml-base"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></div></header>
+    <main class="w-full pt-16 bg-surface">
       <router-view />
     </main>
+    <footer class="w-full bg-surface-container py-xl border-t border-outline-variant"><div class="w-full px-margin-desktop flex flex-col md:flex-row justify-between gap-lg"><div class="max-w-sm"><div class="flex items-center gap-xs mb-md"><img alt="BICAP" class="h-6 w-auto" src="https://lh3.googleusercontent.com/aida/AEtjO1Xm98A0LA5ROnp3EGYEEhnO7RUiEeS1xDasv8LbZS1LW6dzraBRdYdgTD9P8hY_AWKNKJGqPuAMiRHlq70zCfAKU3CDPpeApVXtm694KAQz2Mfy4JHrrXSnsbXt9rUf5uKHISujZ3B_JFccktlEtBxunSrPxD7mtu3wSSF7gYtVnGvlUsZf6OisOvu8951LmEKCQ82ACFZFwIjm1C5g20bbe3cyatBUU4lFtNuwMY5Hi8QjLDAe_l5pU3Q"/><span class="font-headline-md text-headline-md text-on-surface">BiCap</span></div><p class="text-body-md text-on-surface-variant">Nền tảng blockchain nông nghiệp minh bạch, hiệu quả và bền vững hàng đầu Việt Nam.</p></div><div class="grid grid-cols-2 md:grid-cols-3 gap-xl"><div class="flex flex-col gap-base"><span class="font-label-sm text-label-sm text-outline uppercase">Nền tảng</span><a class="text-body-md text-on-surface-variant hover:text-primary" href="/">Sàn giao dịch</a><a class="text-body-md text-on-surface-variant hover:text-primary" href="/">Truy xuất nguồn gốc</a></div><div class="flex flex-col gap-base"><span class="font-label-sm text-label-sm text-outline uppercase">Công ty</span><a class="text-body-md text-on-surface-variant hover:text-primary" href="/">Về chúng tôi</a><a class="text-body-md text-on-surface-variant hover:text-primary" href="/">Liên hệ</a></div></div></div><div class="mt-xl pt-md border-t border-outline-variant text-center text-label-sm text-on-surface-variant px-margin-desktop">© 2024 BiCap. Tất cả quyền được bảo lưu.</div></footer>
   </div>
 </template>
-
-<style scoped lang="scss">
-.guest-layout {
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-}
-.guest-header {
-  padding: $space-4 0;
-  background: rgba(15, 22, 41, 0.5);
-  backdrop-filter: blur(10px);
-  position: sticky;
-  top: 0;
-  z-index: 100;
-}
-.logo-text {
-  color: $primary-green;
-  font-size: 24px;
-  font-weight: 700;
-  font-family: 'Space Grotesk', sans-serif;
-  letter-spacing: 1px;
-}
-</style>

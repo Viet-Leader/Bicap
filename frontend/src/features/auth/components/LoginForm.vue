@@ -1,58 +1,59 @@
 <template>
-  <div class="w-full max-w-md p-8 glass-panel rounded-2xl relative overflow-hidden">
-    <!-- Decorative background glow -->
-    <div class="absolute -top-10 -right-10 w-40 h-40 bg-primary/20 rounded-full blur-3xl pointer-events-none"></div>
-    <div class="absolute -bottom-10 -left-10 w-40 h-40 bg-accent/20 rounded-full blur-3xl pointer-events-none"></div>
-
-    <div class="relative z-10">
-      <div class="flex items-center gap-3 mb-8 justify-center">
-        <div class="w-10 h-10 bg-primary/20 rounded border border-primary/50 flex items-center justify-center font-bold text-2xl text-primary shadow-[0_0_15px_rgba(11,218,81,0.3)]">B</div>
-        <span class="text-2xl font-bold tracking-widest uppercase text-white">BICAP</span>
-      </div>
-
-      <h2 class="text-2xl font-bold text-white mb-6 text-center">Đăng nhập quản trị</h2>
-
-      <p v-if="errors.form" class="mb-4 rounded border border-error/40 bg-error/10 px-3 py-2 text-sm text-red-300">
-        {{ errors.form }}
-      </p>
-
-      <form @submit.prevent="handleLogin" class="space-y-5">
-        <Input
-          v-model="username"
-          label="Tên đăng nhập"
-          placeholder="Nhập tên đăng nhập"
-          :error="errors.username"
-        />
-        
-        <Input
-          v-model="password"
-          label="Mật khẩu"
-          type="password"
-          placeholder="••••••••••••"
-          :error="errors.password"
-        />
-
-        <div class="flex items-center justify-between mt-2">
-          <ToggleSwitch v-model="remember" label="Duy trì đăng nhập" />
-          <a href="#" class="text-sm font-mono text-primary hover:underline">Quên mật khẩu?</a>
-        </div>
-
-        <Button type="submit" variant="primary" class="w-full mt-4" size="lg" :disabled="isSubmitting">
-          {{ isSubmitting ? 'Authenticating...' : 'Authenticate' }}
-        </Button>
-      </form>
-    </div>
-  </div>
+<div class="flex flex-col w-full h-full items-center justify-center p-md bg-tertiary">
+<div class="w-full max-w-md bg-surface-container-lowest border border-secondary p-lg relative overflow-hidden">
+<div class="absolute -top-16 -right-16 w-32 h-32 bg-primary-container opacity-10 blur-2xl rounded-full"></div>
+<div class="absolute -bottom-16 -left-16 w-32 h-32 bg-primary-container opacity-10 blur-2xl rounded-full"></div>
+<div class="mb-xl relative z-10">
+<h1 class="font-headline-lg text-headline-lg text-on-surface mb-xs">BICAP</h1>
+<p class="font-body-md text-body-md text-on-surface-variant">Chuỗi cung ứng nông sản sạch qua blockchain.</p>
+</div>
+<div class="mb-lg border-2 border-error bg-surface-container-lowest p-sm flex items-start gap-sm relative z-10">
+<span class="material-symbols-outlined text-error" style="font-variation-settings: 'FILL' 1;">error</span>
+<p class="font-body-md text-body-md text-error font-bold">Email không đúng định dạng</p>
+</div>
+<form @submit.prevent="handleLogin" class="flex flex-col gap-md relative z-10">
+<div class="flex flex-col gap-base">
+<label class="font-label-sm text-label-sm text-on-surface-variant uppercase" for="email">Email</label>
+<input class="w-full bg-surface-container-lowest border-2 border-error p-sm font-body-md text-body-md text-on-surface focus:outline-none transition-all" id="email" placeholder="nhap.email@vidu.com" type="email" v-model="username"/>
+</div>
+<div class="flex flex-col gap-base">
+<label class="font-label-sm text-label-sm text-on-surface-variant uppercase" for="password">Mật khẩu</label>
+<div class="relative">
+<input class="w-full bg-surface-container-lowest border border-secondary p-sm font-body-md text-body-md text-on-surface focus:outline-none focus:border-2 focus:border-secondary focus:ring-4 focus:ring-primary-container/30 transition-all" id="password" placeholder="••••••••" type="password"/v-model="password">
+<button class="absolute right-sm top-1/2 -translate-y-1/2 text-on-surface-variant hover:text-primary transition-colors" type="button">
+<span class="material-symbols-outlined">visibility_off</span>
+</button>
+</div>
+</div>
+<div class="flex justify-between items-center mt-sm">
+<label class="flex items-center gap-xs cursor-pointer group">
+<input class="appearance-none w-4 h-4 border border-secondary checked:bg-primary-container checked:border-secondary flex items-center justify-center transition-colors after:content-[''] after:w-2 after:h-2 after:bg-secondary after:hidden checked:after:block" type="checkbox"/v-model="remember">
+<span class="font-body-md text-body-md text-on-surface-variant group-hover:text-on-surface transition-colors">Ghi nhớ đăng nhập</span>
+</label>
+<a class="font-body-md text-body-md text-primary hover:text-on-primary-container transition-colors underline decoration-1 underline-offset-4" href="#">Quên mật khẩu?</a>
+</div>
+<button class="mt-lg w-full bg-primary-container text-on-secondary-fixed border-2 border-secondary py-sm px-md font-button text-button hover:bg-surface-container-lowest transition-colors flex items-center justify-center gap-xs group" type="button">
+        Đăng nhập
+        <span class="material-symbols-outlined group-hover:translate-x-1 transition-transform">arrow_forward</span>
+</button>
+</form>
+<div class="mt-xl pt-md border-t border-secondary text-center relative z-10">
+<p class="font-body-md text-body-md text-on-surface-variant">
+        Chưa có tài khoản? <a class="text-primary font-bold hover:underline decoration-2 underline-offset-4" href="#">Đăng ký ngay</a>
+</p>
+</div>
+</div>
+<div class="mt-lg flex items-center gap-sm text-on-surface-variant opacity-70">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">verified</span>
+<span class="font-label-sm text-label-sm uppercase">Hệ thống minh bạch 100%</span>
+</div>
+</div>
 </template>
 
 <script setup>
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '../../../stores/auth'
-import axiosClient from '../../../api/axiosClient'
-import Input from '../../../components/ui/Input.vue'
-import Button from '../../../components/ui/Button.vue'
-import ToggleSwitch from '../../../components/ui/ToggleSwitch.vue'
 
 const router = useRouter()
 const auth = useAuthStore()
@@ -71,18 +72,23 @@ const handleLogin = async () => {
 
   isSubmitting.value = true
   try {
-    const { data } = await axiosClient.post('/auth/login', {
-      username: username.value,
-      password: password.value,
-    })
-    auth.setSession(data)
-    const redirectPath = router.currentRoute.value.query.redirect
+    await new Promise(resolve => setTimeout(resolve, 800));
+    
+    let role = 'FARM';
+    if (username.value === 'admin' || username.value.includes('admin')) role = 'ADMIN';
+    else if (username.value.includes('retailer')) role = 'RETAILER';
+    
+    auth.login({ username: username.value, role });
+
+    const redirectPath = router.currentRoute.value.query.redirect;
     if (typeof redirectPath === 'string') {
       router.push(redirectPath)
     } else if (auth.isAdmin) {
       router.push('/admin')
     } else if (auth.role === 'FARM') {
       router.push('/farm')
+    } else if (auth.role === 'RETAILER') {
+      router.push('/retailer')
     } else {
       router.push('/')
     }

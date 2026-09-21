@@ -26,7 +26,10 @@ export const useCartStore = defineStore('cart', {
         this.isLoading = false
       }
     },
-    async addItem(batchId, quantity) {
+    async addItem(batchId, quantity, productFarmId) {
+      if (this.cart && this.cart.farmId && productFarmId && this.cart.farmId !== productFarmId) {
+        throw new Error('Bạn chỉ có thể đặt hàng các sản phẩm từ cùng một Trang trại. Vui lòng thanh toán giỏ hàng hiện tại trước (Lỗi BR02).')
+      }
       const { data } = await axiosClient.post('/carts/items', { batchId, quantity })
       this.cart = data
     },

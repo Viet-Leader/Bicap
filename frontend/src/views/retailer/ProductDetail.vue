@@ -24,10 +24,10 @@ const loadProduct = async () => {
 
 const addBatch = async (batch) => {
   try {
-    await cart.addItem(batch.batchId, quantity.value)
+    await cart.addItem(batch.batchId, quantity.value, product.value.farmId)
     notice.value = `${batch.batchCode} added to cart.`
   } catch (error) {
-    notice.value = error.response?.data?.message || 'Unable to add batch.'
+    notice.value = error.response?.data?.message || error.message || 'Unable to add batch.'
   }
 }
 
