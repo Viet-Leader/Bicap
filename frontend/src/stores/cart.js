@@ -19,9 +19,19 @@ export const useCartStore = defineStore('cart', {
       this.error = ''
       try {
         const { data } = await axiosClient.get('/carts/me')
-        this.cart = data
+        // Nếu API trả về cart rỗng (không có items) thì set null để isEmpty = true
+        if (!data?.items?.length) {
+          this.cart = null
+        } else {
+          this.cart = data
+        }
       } catch (error) {
-        this.error = error.response?.data?.message || 'Unable to load cart'
+        if (error.response?.status === 404) {
+          // Cart không tồn tại → giỏ hàng trống
+          this.cart = null
+        } else {
+          this.error = error.response?.data?.message || 'Unable to load cart'
+        }
       } finally {
         this.isLoading = false
       }
@@ -37,13 +47,24 @@ export const useCartStore = defineStore('cart', {
       const { data } = await axiosClient.put(`/carts/items/${cartItemId}`, { quantity })
       this.cart = data
     },
+    async updateQuantity(cartItemId, quantity) {
+      return this.updateItem(cartItemId, quantity)
+    },
     async removeItem(cartItemId) {
-      await axiosClient.delete(`/carts/items/${cartItemId}`)
-      await this.load()
+      try {
+        await axiosClient.delete(`/carts/items/${cartItemId}`)
+        await this.load()
+      } catch (error) {
+        if (error.response?.status === 404) {
+          this.cart = null
+        } else {
+          throw error
+        }
+      }
     },
     async checkout() {
       const { data } = await axiosClient.post('/orders/checkout')
-      await this.load()
+      this.cart = null
       return data
     },
   },

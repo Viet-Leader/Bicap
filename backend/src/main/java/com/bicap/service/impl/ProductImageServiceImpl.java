@@ -20,6 +20,9 @@ import java.util.stream.Collectors;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 @Service
 @RequiredArgsConstructor
@@ -171,7 +174,19 @@ public String getThumbnail(Long productId) {
     return productImageRepository
             .findFirstByProductBatchProductProductIdOrderByDisplayOrderAsc(productId)
             .map(ProductImage::getImageUrl)
+                        .filter(this::isStoredImageAvailable)
             .orElse(null);
+}
+
+private boolean isStoredImageAvailable(String imageUrl) {
+        if (imageUrl == null || imageUrl.isBlank()) {
+                return false;
+        }
+
+        String relativePath = imageUrl.replaceFirst("^/uploads/", "");
+        Path uploadRoot = Paths.get("uploads").toAbsolutePath().normalize();
+        Path imagePath = uploadRoot.resolve(relativePath).normalize();
+        return imagePath.startsWith(uploadRoot) && Files.isRegularFile(imagePath);
 }
 private ProductBatch getBatch(Long batchId) {
 

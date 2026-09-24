@@ -29,4 +29,6 @@ public class CartItemResponse {
 
     private BigDecimal remainingQuantity;
 
+    private String thumbnail;
+
 }

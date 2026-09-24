@@ -13,6 +13,8 @@ import org.mapstruct.NullValuePropertyMappingStrategy;
 
 import java.util.List;
 import java.math.BigDecimal;
+import com.bicap.entity.ProductBatch;
+import com.bicap.common.enums.ProductBatchStatus;
 
 @Mapper(
         componentModel = "spring",
@@ -58,8 +60,13 @@ public interface ProductMapper {
      */
     @Mapping(target = "cropName", source = "crop.cropName")
     @Mapping(target = "farmName", source = "farm.farmName")
+        @Mapping(target = "farmId", source = "farm.farmId")
     @Mapping(target = "thumbnail", ignore = true)
     @Mapping(target = "remainingQuantity", expression = "java(calculateRemainingQuantity(product))")
+        @Mapping(target = "batchId", expression = "java(getAvailableBatch(product).map(batch -> batch.getBatchId()).orElse(null))")
+        @Mapping(target = "batchCode", expression = "java(getAvailableBatch(product).map(batch -> batch.getBatchCode()).orElse(null))")
+        @Mapping(target = "grade", expression = "java(getAvailableBatch(product).map(batch -> batch.getGrade().name()).orElse(null))")
+        @Mapping(target = "unitPrice", expression = "java(getAvailableBatch(product).map(batch -> batch.getUnitPrice()).orElse(null))")
     ProductSummaryResponse toSummary(Product product);
 
     default BigDecimal calculateRemainingQuantity(Product product) {
@@ -68,6 +75,14 @@ public interface ProductMapper {
                         ? BigDecimal.ZERO
                         : batch.getRemainingQuantity())
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
+    }
+
+    default java.util.Optional<ProductBatch> getAvailableBatch(Product product) {
+        return product.getProductBatches().stream()
+                .filter(batch -> batch.getStatus() == ProductBatchStatus.AVAILABLE)
+                .filter(batch -> batch.getRemainingQuantity() != null
+                        && batch.getRemainingQuantity().compareTo(BigDecimal.ZERO) > 0)
+                .min(java.util.Comparator.comparing(ProductBatch::getUnitPrice));
     }
 
     /**

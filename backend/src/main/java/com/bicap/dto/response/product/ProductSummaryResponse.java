@@ -23,10 +23,20 @@ public class ProductSummaryResponse {
 
     private String farmName;
 
+    private Long farmId;
+
     private String unit;
 
     private BigDecimal remainingQuantity;
 
     private String thumbnail;
+
+    private Long batchId;
+
+    private String batchCode;
+
+    private String grade;
+
+    private BigDecimal unitPrice;
 
 }
