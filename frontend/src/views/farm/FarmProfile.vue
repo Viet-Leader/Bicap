@@ -1,41 +1,133 @@
-<script setup>
-import { onMounted, reactive, ref } from 'vue'
-import axiosClient from '../../api/axiosClient'
-
-const form = reactive({ farmName: '', businessLicense: '', address: '', description: '' })
-const isLoading = ref(true)
-const isSaving = ref(false)
-const notice = ref('')
-const errorMessage = ref('')
-
-const loadFarm = async () => {
-  try {
-    const { data } = await axiosClient.get('/farms/me')
-    Object.assign(form, data)
-  } catch (error) {
-    errorMessage.value = error.response?.data?.message || 'Unable to load farm profile.'
-  } finally {
-    isLoading.value = false
-  }
-}
-
-const saveFarm = async () => {
-  isSaving.value = true
-  notice.value = ''
-  try {
-    const { data } = await axiosClient.put('/farms/me', form)
-    Object.assign(form, data)
-    notice.value = 'Farm profile saved.'
-  } catch (error) {
-    notice.value = error.response?.data?.message || 'Unable to save farm profile.'
-  } finally {
-    isSaving.value = false
-  }
-}
-
-onMounted(loadFarm)
-</script>
-
 <template>
-  <section class="mx-auto max-w-4xl"><p class="text-xs font-bold uppercase tracking-[.22em] text-[#6f8e42]">Farm identity</p><h1 class="mt-3 text-4xl font-bold">Farm profile</h1><p class="mt-3 text-[#668078]">Keep the farm information shown across the supply chain accurate.</p><p v-if="isLoading" class="mt-10 text-[#668078]">Loading profile...</p><p v-else-if="errorMessage" class="mt-10 text-red-700">{{ errorMessage }}</p><form v-else class="mt-10 border border-[#dce4d8] bg-white p-6 sm:p-8" @submit.prevent="saveFarm"><div class="grid gap-5 sm:grid-cols-2"><label class="text-sm font-semibold">Farm name<input v-model="form.farmName" class="mt-2 w-full border border-[#dce4d8] px-3 py-3" required /></label><label class="text-sm font-semibold">Business license<input v-model="form.businessLicense" class="mt-2 w-full border border-[#dce4d8] px-3 py-3" required /></label><label class="text-sm font-semibold sm:col-span-2">Address<input v-model="form.address" class="mt-2 w-full border border-[#dce4d8] px-3 py-3" required /></label><label class="text-sm font-semibold sm:col-span-2">Description<textarea v-model="form.description" rows="5" class="mt-2 w-full border border-[#dce4d8] px-3 py-3"></textarea></label></div><div class="mt-6 flex items-center justify-between"><span class="text-sm text-[#6f8e42]">{{ notice }}</span><button class="bg-[#173f35] px-5 py-3 font-bold text-white" :disabled="isSaving">{{ isSaving ? 'Saving...' : 'Save profile' }}</button></div></form></section>
+  <div class="container-fluid py-4">
+    <div class="card card-body">
+      <div class="row gx-4 mb-4 align-items-center">
+        <div class="col-auto">
+          <div class="avatar avatar-xl position-relative">
+            <img :src="avatarUrl" alt="Ảnh đại diện trang trại" class="w-100 border-radius-lg shadow-sm">
+          </div>
+        </div>
+        <div class="col-auto">
+          <h5 class="mb-1">{{ form.farmName || 'Trang trại' }}</h5>
+          <p class="mb-0 text-sm text-secondary">{{ form.address || 'Chưa cập nhật địa chỉ' }}</p>
+        </div>
+      </div>
+
+      <div v-if="success" class="alert alert-success">{{ success }}</div>
+      <div v-if="error" class="alert alert-danger">{{ error }}</div>
+      <div v-if="loading" class="text-center py-4">Đang tải thông tin trang trại...</div>
+
+      <form v-else class="row" @submit.prevent="saveProfile">
+        <div class="col-12 col-xl-8">
+          <div class="card card-plain h-100">
+            <div class="card-header px-0"><h6 class="mb-0">Thông tin trang trại</h6></div>
+            <div class="card-body px-0">
+              <div class="mb-3">
+                <label class="form-label" for="farm-name">Tên trang trại</label>
+                <input id="farm-name" v-model.trim="form.farmName" class="form-control" type="text" required maxlength="150">
+              </div>
+              <div class="mb-3">
+                <label class="form-label" for="farm-address">Địa chỉ</label>
+                <input id="farm-address" v-model.trim="form.address" class="form-control" type="text" required maxlength="255">
+              </div>
+              <div class="mb-3">
+                <label class="form-label" for="farm-description">Mô tả</label>
+                <textarea id="farm-description" v-model.trim="form.description" class="form-control" rows="4" maxlength="1000"></textarea>
+              </div>
+              <button class="btn bg-gradient-dark mb-0" type="submit" :disabled="saving">
+                {{ saving ? 'Đang cập nhật...' : 'Cập nhật thông tin' }}
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-12 col-xl-4">
+          <div class="card card-plain h-100">
+            <div class="card-header px-0"><h6 class="mb-0">Ảnh trang trại</h6></div>
+            <div class="card-body px-0">
+              <label class="form-label" for="farm-avatar">Chọn ảnh</label>
+              <input id="farm-avatar" class="form-control" type="file" accept="image/*" @change="selectAvatar">
+              <p class="text-xs text-secondary mt-2 mb-0">Ảnh sẽ được xem trước ngay sau khi chọn.</p>
+            </div>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
 </template>
+
+<script setup>
+import { onMounted, reactive, ref } from 'vue';
+import axiosClient from '@/api/axiosClient';
+
+const defaultAvatar = '/admin-assets/img/farm-organic-1.png';
+const loading = ref(true);
+const saving = ref(false);
+const error = ref('');
+const success = ref('');
+const avatarUrl = ref(localStorage.getItem('bicap_farm_avatar') || defaultAvatar);
+const form = reactive({ farmName: '', address: '', description: '' });
+
+const loadProfile = async () => {
+  loading.value = true;
+  error.value = '';
+  try {
+    const { data } = await axiosClient.get('/farms/me');
+    Object.assign(form, {
+      farmName: data?.farmName || '',
+      address: data?.address || '',
+      description: data?.description || '',
+    });
+  } catch (err) {
+    error.value = err.response?.data?.message || 'Không thể tải thông tin trang trại.';
+  } finally {
+    loading.value = false;
+  }
+};
+
+const selectAvatar = (event) => {
+  const file = event.target.files?.[0];
+  if (!file) return;
+  if (!file.type.startsWith('image/')) {
+    error.value = 'Vui lòng chọn một tệp hình ảnh.';
+    return;
+  }
+  if (file.size > 5 * 1024 * 1024) {
+    error.value = 'Ảnh không được lớn hơn 5 MB.';
+    return;
+  }
+  error.value = '';
+  const reader = new FileReader();
+  reader.onload = () => {
+    avatarUrl.value = String(reader.result);
+    localStorage.setItem('bicap_farm_avatar', avatarUrl.value);
+    success.value = 'Đã cập nhật ảnh xem trước.';
+  };
+  reader.readAsDataURL(file);
+};
+
+const saveProfile = async () => {
+  saving.value = true;
+  error.value = '';
+  success.value = '';
+  try {
+    const { data } = await axiosClient.put('/farms/me', {
+      farmName: form.farmName,
+      address: form.address,
+      description: form.description,
+    });
+    Object.assign(form, {
+      farmName: data?.farmName || form.farmName,
+      address: data?.address || form.address,
+      description: data?.description || form.description,
+    });
+    success.value = 'Đã cập nhật thông tin trang trại.';
+  } catch (err) {
+    error.value = err.response?.data?.message || 'Không thể cập nhật thông tin trang trại.';
+  } finally {
+    saving.value = false;
+  }
+};
+
+onMounted(loadProfile);
+</script>

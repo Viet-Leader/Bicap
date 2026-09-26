@@ -72,13 +72,7 @@ const handleLogin = async () => {
 
   isSubmitting.value = true
   try {
-    await new Promise(resolve => setTimeout(resolve, 800));
-    
-    let role = 'FARM';
-    if (username.value === 'admin' || username.value.includes('admin')) role = 'ADMIN';
-    else if (username.value.includes('retailer')) role = 'RETAILER';
-    
-    auth.login({ username: username.value, role });
+    await auth.login(username.value, password.value);
 
     const redirectPath = router.currentRoute.value.query.redirect;
     if (typeof redirectPath === 'string') {

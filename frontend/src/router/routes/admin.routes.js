@@ -4,7 +4,8 @@ export default [
     component: () => import('@/components/layout/AdminLayout.vue'),
     meta: { requiresAuth: true, role: 'ADMIN' },
     children: [
-      { path: '', name: 'admin-dashboard', component: () => import('@/views/admin/Dashboard.vue') },
+      { path: '', redirect: { name: 'admin-dashboard' } },
+      { path: 'dashboard', name: 'admin-dashboard', component: () => import('@/views/admin/Dashboard.vue') },
       { path: 'accounts', name: 'admin-accounts', component: () => import('@/views/admin/Accounts.vue') },
       { path: 'farms', name: 'admin-farms', component: () => import('@/views/admin/Farms.vue') },
       { path: 'crops', name: 'admin-crops', component: () => import('@/views/admin/Crops.vue') },

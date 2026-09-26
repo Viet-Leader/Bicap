@@ -1,48 +1,88 @@
-<script setup>
-import { onMounted, reactive, ref } from 'vue'
-import axiosClient from '../../api/axiosClient'
+<template>
+  <div class="container-fluid py-4">
+    <div class="card">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">Quản lý mùa vụ</h5>
+        <button class="btn btn-success mb-0" type="button" @click="showForm = !showForm">
+          {{ showForm ? 'Đóng' : 'Tạo mùa vụ' }}
+        </button>
+      </div>
+      <div class="card-body">
+        <div v-if="error" class="alert alert-danger">{{ error }}</div>
+        <form v-if="showForm" class="row g-3 mb-4" @submit.prevent="createSeason">
+          <div class="col-md-4"><label class="form-label" for="season-name">Tên mùa vụ</label><input id="season-name" v-model="form.seasonName" class="form-control" required></div>
+          <div class="col-md-3"><label class="form-label" for="planting-date">Ngày gieo trồng</label><input id="planting-date" v-model="form.plantingDate" class="form-control" type="date" required></div>
+          <div class="col-md-3"><label class="form-label" for="harvest-date">Ngày thu hoạch dự kiến</label><input id="harvest-date" v-model="form.expectedHarvestDate" class="form-control" type="date" required></div>
+          <div class="col-md-2 d-flex align-items-end"><button class="btn btn-primary mb-0 w-100" type="submit" :disabled="saving">{{ saving ? 'Đang lưu...' : 'Lưu' }}</button></div>
+        </form>
+        <div v-if="loading" class="text-center py-4">Đang tải mùa vụ...</div>
+        <div v-else-if="seasons.length === 0" class="alert alert-info mb-0">Chưa có mùa vụ nào.</div>
+        <div v-else class="table-responsive">
+          <table class="table align-items-center mb-0">
+            <thead><tr><th>Tên mùa vụ</th><th>Ngày gieo</th><th>Ngày thu hoạch</th><th>Trạng thái</th><th>Thao tác</th></tr></thead>
+            <tbody>
+              <tr v-for="season in seasons" :key="season.seasonId">
+                <td>{{ season.seasonName }}</td><td>{{ formatDate(season.plantingDate) }}</td><td>{{ formatDate(season.expectedHarvestDate) }}</td>
+                <td><span class="badge" :class="statusClass(season.status)">{{ season.status }}</span></td>
+                <td class="text-nowrap">
+                  <button v-if="season.status === 'PLANNED'" class="btn btn-sm btn-info mb-0 me-1" @click="updateSeason(season.seasonId, 'start')">Bắt đầu</button>
+                  <button v-if="season.status === 'IN_PROGRESS'" class="btn btn-sm btn-success mb-0 me-1" @click="updateSeason(season.seasonId, 'harvest')">Thu hoạch</button>
+                  <button v-if="!['COMPLETED', 'CANCELLED'].includes(season.status)" class="btn btn-sm btn-outline-danger mb-0" @click="updateSeason(season.seasonId, 'cancel')">Hủy</button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
 
-const seasons = ref([])
-const isLoading = ref(true)
-const notice = ref('')
-const form = reactive({ seasonName: '', plantingDate: '', expectedHarvestDate: '' })
+<script setup>
+import { onMounted, reactive, ref } from 'vue';
+import axiosClient from '@/api/axiosClient';
+
+const seasons = ref([]);
+const loading = ref(true);
+const saving = ref(false);
+const showForm = ref(false);
+const error = ref('');
+const form = reactive({ seasonName: '', plantingDate: '', expectedHarvestDate: '' });
 
 const loadSeasons = async () => {
+  loading.value = true;
+  error.value = '';
   try {
-    const { data } = await axiosClient.get('/farming-seasons', { params: { size: 50 } })
-    seasons.value = data.content || []
-  } catch (error) {
-    notice.value = error.response?.data?.message || 'Unable to load seasons.'
-  } finally {
-    isLoading.value = false
-  }
-}
+    const { data } = await axiosClient.get('/farming-seasons');
+    seasons.value = data.content || data || [];
+  } catch (err) {
+    error.value = err.response?.data?.message || 'Không thể tải danh sách mùa vụ.';
+  } finally { loading.value = false; }
+};
 
 const createSeason = async () => {
+  saving.value = true;
+  error.value = '';
   try {
-    await axiosClient.post('/farming-seasons', form)
-    Object.assign(form, { seasonName: '', plantingDate: '', expectedHarvestDate: '' })
-    notice.value = 'Season created.'
-    await loadSeasons()
-  } catch (error) {
-    notice.value = error.response?.data?.message || 'Unable to create season.'
-  }
-}
+    await axiosClient.post('/farming-seasons', form);
+    Object.assign(form, { seasonName: '', plantingDate: '', expectedHarvestDate: '' });
+    showForm.value = false;
+    await loadSeasons();
+  } catch (err) {
+    error.value = err.response?.data?.message || 'Không thể tạo mùa vụ.';
+  } finally { saving.value = false; }
+};
 
-const changeStatus = async (season) => {
-  const action = season.status === 'PLANNING' ? 'start' : season.status === 'PLANTING' ? 'harvest' : null
-  if (!action) return
+const updateSeason = async (id, action) => {
+  error.value = '';
   try {
-    await axiosClient.patch(`/farming-seasons/${season.seasonId}/${action}`)
-    await loadSeasons()
-  } catch (error) {
-    notice.value = error.response?.data?.message || 'Unable to update season.'
-  }
-}
+    await axiosClient.patch(`/farming-seasons/${id}/${action}`);
+    await loadSeasons();
+  } catch (err) { error.value = err.response?.data?.message || 'Không thể cập nhật mùa vụ.'; }
+};
 
-onMounted(loadSeasons)
+const formatDate = (value) => value ? new Date(value).toLocaleDateString('vi-VN') : 'Chưa cập nhật';
+const statusClass = (status) => ({ PLANNED: 'bg-gradient-secondary', IN_PROGRESS: 'bg-gradient-info', COMPLETED: 'bg-gradient-success', CANCELLED: 'bg-gradient-danger' }[status] || 'bg-gradient-secondary');
+
+onMounted(loadSeasons);
 </script>
-
-<template>
-  <section class="mx-auto max-w-6xl"><p class="text-xs font-bold uppercase tracking-[.22em] text-[#6f8e42]">Production planning</p><h1 class="mt-3 text-4xl font-bold">Farming seasons</h1><p class="mt-3 text-[#668078]">Plan, start and track each growing cycle.</p><div class="mt-8 grid gap-6 lg:grid-cols-[320px_1fr]"><form class="h-fit border border-[#dce4d8] bg-white p-5" @submit.prevent="createSeason"><h2 class="text-lg font-bold">New season</h2><label class="mt-5 block text-sm font-semibold">Name<input v-model="form.seasonName" class="mt-2 w-full border border-[#dce4d8] px-3 py-2" required /></label><label class="mt-4 block text-sm font-semibold">Planting date<input v-model="form.plantingDate" type="date" class="mt-2 w-full border border-[#dce4d8] px-3 py-2" required /></label><label class="mt-4 block text-sm font-semibold">Expected harvest<input v-model="form.expectedHarvestDate" type="date" class="mt-2 w-full border border-[#dce4d8] px-3 py-2" required /></label><button class="mt-5 w-full bg-[#173f35] px-4 py-3 font-bold text-white">Create season</button><p class="mt-3 text-sm text-[#6f8e42]">{{ notice }}</p></form><div><p v-if="isLoading" class="text-[#668078]">Loading seasons...</p><div v-else class="space-y-4"><article v-for="season in seasons" :key="season.seasonId" class="border border-[#dce4d8] bg-white p-5"><div class="flex flex-wrap items-start justify-between gap-4"><div><h2 class="text-xl font-bold">{{ season.seasonName }}</h2><p class="mt-2 text-sm text-[#668078]">{{ season.plantingDate }} to {{ season.expectedHarvestDate }}</p></div><span class="bg-[#eaf3d3] px-3 py-2 text-xs font-bold text-[#58752d]">{{ season.status }}</span></div><button v-if="season.status === 'PLANNING' || season.status === 'PLANTING'" class="mt-5 border border-[#173f35] px-3 py-2 text-sm font-semibold text-[#173f35]" @click="changeStatus(season)">{{ season.status === 'PLANNING' ? 'Start planting' : 'Start harvest' }}</button></article><p v-if="!seasons.length" class="border border-dashed border-[#cbd8c5] p-8 text-center text-[#668078]">No seasons yet.</p></div></div></div></section>
-</template>

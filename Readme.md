@@ -1,3 +1,5 @@
+***CÁCH KHỞI CHẠY DỰ ÁN***
+I. Khởi chạy Backend:
 1. Khởi động Hardhat Node
 
 Mở terminal:
@@ -34,3 +36,7 @@ Mở terminal thứ 3:
 
 cd D:\bicap\backend
 .\mvnw spring-boot:run
+II. Cách khởi chạy frontend:
+1. cd frontend
+2. npm run build
+3. npm run dev

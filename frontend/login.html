@@ -1,0 +1,50 @@
+<html lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config={theme:{extend:{"colors":{"primary-fixed":"#6dff80","tertiary-container":"#babebc","inverse-surface":"#2a313d","surface-container":"#e7eefe","primary-container":"#0bda51","outline-variant":"#bbcbb6","surface-container-highest":"#dce2f3","inverse-on-surface":"#ebf1ff","inverse-primary":"#27e45a","error-container":"#ffdad6","on-primary-container":"#00591b","secondary-container":"#e2e2e5","tertiary-fixed":"#e0e3e1","on-secondary-fixed":"#1a1c1e","on-error":"#ffffff","primary":"#006e24","on-tertiary-fixed-variant":"#434846","on-tertiary":"#ffffff","on-surface-variant":"#3c4b3a","on-error-container":"#93000a","outline":"#6c7b69","on-tertiary-container":"#494d4c","on-primary":"#ffffff","surface-variant":"#dce2f3","surface-container-low":"#f0f3ff","surface-container-lowest":"#ffffff","tertiary-fixed-dim":"#c4c7c5","on-primary-fixed-variant":"#005319","surface-container-high":"#e2e8f8","on-secondary":"#ffffff","background":"#f9f9ff","surface-tint":"#006e24","surface-dim":"#d3daea","tertiary":"#5b5f5e","on-secondary-container":"#636467","secondary-fixed-dim":"#c6c6c9","surface":"#f9f9ff","on-background":"#151c27","on-surface":"#151c27","on-secondary-fixed-variant":"#454749","on-primary-fixed":"#002106","secondary-fixed":"#e2e2e5","error":"#ba1a1a","primary-fixed-dim":"#27e45a","on-tertiary-fixed":"#181c1b","surface-bright":"#f9f9ff","secondary":"#5d5e61"},"borderRadius":{"DEFAULT":"0.125rem","lg":"0.25rem","xl":"0.5rem","full":"0.75rem"},"spacing":{"margin-desktop":"48px","xl":"64px","lg":"40px","xs":"8px","margin-mobile":"16px","gutter":"24px","md":"24px","base":"4px","sm":"16px"},"fontFamily":{"button":["Hanken Grotesk"],"body-md":["Hanken Grotesk"],"headline-lg-mobile":["Hanken Grotesk"],"headline-lg":["Hanken Grotesk"],"body-lg":["Hanken Grotesk"],"headline-md":["Hanken Grotesk"],"label-sm":["JetBrains Mono"]},"fontSize":{"button":["16px",{"lineHeight":"1","fontWeight":"600"}],"body-md":["16px",{"lineHeight":"24px","fontWeight":"400"}],"headline-lg-mobile":["32px",{"lineHeight":"38px","letterSpacing":"-0.01em","fontWeight":"700"}],"headline-lg":["40px",{"lineHeight":"48px","letterSpacing":"-0.02em","fontWeight":"700"}],"body-lg":["18px",{"lineHeight":"28px","fontWeight":"400"}],"headline-md":["24px",{"lineHeight":"32px","fontWeight":"600"}],"label-sm":["12px",{"lineHeight":"16px","letterSpacing":"0.05em","fontWeight":"500"}]}}}}</script><link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@500&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/></head><body class="bg-background font-body-md text-on-surface flex items-center justify-center min-h-screen"><main class="w-full max-w-lg p-lg"><div class="flex flex-col w-full h-full items-center justify-center p-md bg-tertiary">
+<div class="w-full max-w-md bg-surface-container-lowest border border-secondary p-lg relative overflow-hidden">
+<div class="absolute -top-16 -right-16 w-32 h-32 bg-primary-container opacity-10 blur-2xl rounded-full"></div>
+<div class="absolute -bottom-16 -left-16 w-32 h-32 bg-primary-container opacity-10 blur-2xl rounded-full"></div>
+<div class="mb-xl relative z-10">
+<h1 class="font-headline-lg text-headline-lg text-on-surface mb-xs">BICAP</h1>
+<p class="font-body-md text-body-md text-on-surface-variant">Chuỗi cung ứng nông sản sạch qua blockchain.</p>
+</div>
+<div class="mb-lg border-2 border-error bg-surface-container-lowest p-sm flex items-start gap-sm relative z-10">
+<span class="material-symbols-outlined text-error" style="font-variation-settings: 'FILL' 1;">error</span>
+<p class="font-body-md text-body-md text-error font-bold">Email không đúng định dạng</p>
+</div>
+<form class="flex flex-col gap-md relative z-10">
+<div class="flex flex-col gap-base">
+<label class="font-label-sm text-label-sm text-on-surface-variant uppercase" for="email">Email</label>
+<input class="w-full bg-surface-container-lowest border-2 border-error p-sm font-body-md text-body-md text-on-surface focus:outline-none transition-all" id="email" placeholder="nhap.email@vidu.com" type="email" value="invalid-email@"/>
+</div>
+<div class="flex flex-col gap-base">
+<label class="font-label-sm text-label-sm text-on-surface-variant uppercase" for="password">Mật khẩu</label>
+<div class="relative">
+<input class="w-full bg-surface-container-lowest border border-secondary p-sm font-body-md text-body-md text-on-surface focus:outline-none focus:border-2 focus:border-secondary focus:ring-4 focus:ring-primary-container/30 transition-all" id="password" placeholder="••••••••" type="password"/>
+<button class="absolute right-sm top-1/2 -translate-y-1/2 text-on-surface-variant hover:text-primary transition-colors" type="button">
+<span class="material-symbols-outlined">visibility_off</span>
+</button>
+</div>
+</div>
+<div class="flex justify-between items-center mt-sm">
+<label class="flex items-center gap-xs cursor-pointer group">
+<input class="appearance-none w-4 h-4 border border-secondary checked:bg-primary-container checked:border-secondary flex items-center justify-center transition-colors after:content-[''] after:w-2 after:h-2 after:bg-secondary after:hidden checked:after:block" type="checkbox"/>
+<span class="font-body-md text-body-md text-on-surface-variant group-hover:text-on-surface transition-colors">Ghi nhớ đăng nhập</span>
+</label>
+<a class="font-body-md text-body-md text-primary hover:text-on-primary-container transition-colors underline decoration-1 underline-offset-4" href="#">Quên mật khẩu?</a>
+</div>
+<button class="mt-lg w-full bg-primary-container text-on-secondary-fixed border-2 border-secondary py-sm px-md font-button text-button hover:bg-surface-container-lowest transition-colors flex items-center justify-center gap-xs group" type="button">
+        Đăng nhập
+        <span class="material-symbols-outlined group-hover:translate-x-1 transition-transform">arrow_forward</span>
+</button>
+</form>
+<div class="mt-xl pt-md border-t border-secondary text-center relative z-10">
+<p class="font-body-md text-body-md text-on-surface-variant">
+        Chưa có tài khoản? <a class="text-primary font-bold hover:underline decoration-2 underline-offset-4" href="#">Đăng ký ngay</a>
+</p>
+</div>
+</div>
+<div class="mt-lg flex items-center gap-sm text-on-surface-variant opacity-70">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">verified</span>
+<span class="font-label-sm text-label-sm uppercase">Hệ thống minh bạch 100%</span>
+</div>
+</div></main></body></html>

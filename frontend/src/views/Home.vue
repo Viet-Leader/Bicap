@@ -1,114 +1,304 @@
 <template>
-  <div class="flex flex-col w-full font-body-md overflow-x-hidden text-on-surface">
-<!-- Hero Section -->
-<section class="relative w-full min-h-[600px] flex items-center justify-center py-xl overflow-hidden bg-primary-fixed-variant" data-alt="A lush, expansive Vietnamese rice paddy field at golden hour, vibrant emerald green stalks catching the warm light. The scene is shot from a low angle looking towards distant mountains. The overall mood is prosperous, natural, and forward-looking, with a very subtle, modern, almost digital-green technological overlay hinting at blockchain connectivity without being literal. High resolution, cinematic lighting." style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuDti8H8ld6jRTOvKj66eO2D0kuMlw8QQhXBtUaZ29ui82M7HRS8hliS-sm4WCUh3RaxorSqWycjAdkhdt9dLwl-d0azgWAbqsMMx4DMr43Fi7KJCi1dHIZ8q734UDzs4J84PBTjUeOkBapUUjyXO0lP91Ao0NhK9zp9hosI-H_5EVGvLM8EHmss040yKTtxVpwy8wWOSORQNq07Fhx_2iwKyK9lj_fkS1VrVr8TEc-gljSapFfpwblk')">
-<div class="absolute inset-0 bg-gradient-to-r from-on-primary-fixed/90 via-on-primary-fixed/70 to-transparent"></div>
-<div class="relative w-full max-w-[1440px] px-margin-mobile md:px-margin-desktop mx-auto grid grid-cols-1 lg:grid-cols-2 gap-lg items-center z-10">
-<div class="flex flex-col items-start space-y-md text-on-primary">
-<h1 class="font-headline-lg text-headline-lg-mobile md:text-[56px] md:leading-[64px] font-bold tracking-tight text-white drop-shadow-md">
-                    Minh Bạch Hóa <br/> <span class="text-primary-fixed">Nông Sản Việt</span>
-</h1>
-<p class="font-body-lg text-body-lg text-surface-container-low max-w-xl opacity-90 drop-shadow-sm">
-                    BiCap kết nối trực tiếp nông dân với người tiêu dùng qua công nghệ blockchain. Đảm bảo nguồn gốc, chất lượng và giá trị đích thực cho mỗi bữa ăn.
-                </p>
-<div class="flex flex-wrap gap-sm pt-xs">
-<button class="bg-surface-container-lowest text-primary-fixed-variant font-button text-button px-lg py-[14px] rounded-full hover:bg-surface-container hover:scale-105 transition-all shadow-lg flex items-center gap-xs">
-                        Mua sắm ngay
-                        <span class="material-symbols-outlined text-[20px]">shopping_cart_checkout</span>
-</button>
-<button class="bg-transparent border border-surface-container-low text-surface-container-lowest font-button text-button px-lg py-[14px] rounded-full hover:bg-surface-container-lowest/10 hover:border-surface-container-lowest transition-all backdrop-blur-sm flex items-center gap-xs">
-                        Truy xuất
-                        <span class="material-symbols-outlined text-[20px]">qr_code_scanner</span>
-</button>
-</div>
-<div class="flex items-center gap-md pt-lg mt-md border-t border-surface-container-low/20 w-full max-w-xl">
-<div class="flex flex-col">
-<span class="font-headline-md text-primary-fixed font-bold">10k+</span>
-<span class="font-label-sm text-surface-container-low/80 uppercase tracking-wider">Sản phẩm sạch</span>
-</div>
-<div class="w-px h-8 bg-surface-container-low/20"></div>
-<div class="flex flex-col">
-<span class="font-headline-md text-primary-fixed font-bold">50k+</span>
-<span class="font-label-sm text-surface-container-low/80 uppercase tracking-wider">Khách hàng</span>
-</div>
-<div class="w-px h-8 bg-surface-container-low/20"></div>
-<div class="flex flex-col">
-<span class="font-headline-md text-primary-fixed font-bold">1M+</span>
-<span class="font-label-sm text-surface-container-low/80 uppercase tracking-wider">Block giao dịch</span>
-</div>
-</div>
-</div>
-<div class="hidden lg:flex justify-center items-center relative perspective-[1000px]">
-<!-- Decorative Elements -->
-<div class="absolute w-[400px] h-[400px] bg-primary-container rounded-full blur-[100px] opacity-30 animate-pulse mix-blend-screen"></div>
-<div class="absolute -top-10 -right-10 w-[200px] h-[200px] bg-inverse-primary rounded-full blur-[80px] opacity-20 mix-blend-screen"></div>
-<!-- Glass Card -->
-<div class="relative w-full max-w-md aspect-[4/5] rounded-3xl bg-surface-container-lowest/10 backdrop-blur-md border border-surface-container-lowest/20 shadow-2xl p-6 flex flex-col justify-between transform rotate-y-[-10deg] rotate-x-[5deg] hover:rotate-0 transition-transform duration-700 ease-out">
-<div class="flex justify-between items-center mb-md">
-<div class="flex items-center gap-xs">
-<span class="material-symbols-outlined text-primary-fixed text-[24px]">verified</span>
-<span class="font-label-sm text-surface-container-lowest tracking-wider uppercase">Chuỗi Khối Xác Thực</span>
-</div>
-<span class="material-symbols-outlined text-surface-container-lowest/50 text-[24px]">more_horiz</span>
-</div>
-<div class="flex-1 rounded-2xl overflow-hidden relative group">
-<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" data-alt="A modern, abstract visualization of a blockchain supply chain specifically for agriculture. Think glowing green interconnected nodes hovering over a stylized isometric map of a farm and a city. The visual style should be sleek, 3D, translucent, glassmorphism-inspired with vibrant green (#0BDA51) accents against a dark background." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDX5rc5yiiVIRC0ikSx4P8A0SRbyR38S9ADqJHlH0xFG8kWmePGA_l_37gG7RpfqY5RsmvLYZsbYl7_Ob1vv3XqFBz0abFL6OtADhW23F_BZmkoHe72a-VfS40zSSUipbImJdCoxNigkmU3Qmxt21_kngBl2XZ_xwzPyhYSCyN_nE7LPCPGXaUDubiTMTTTTuCIshAXllFH7HRgdd8Q-HxkH3gpV3ZX3Pvjh3opmjNaBcyIll-sAKaQ"/>
-<div class="absolute inset-0 bg-gradient-to-t from-on-primary-fixed/80 to-transparent"></div>
-<div class="absolute bottom-4 left-4 right-4 bg-surface-container-lowest/20 backdrop-blur-md border border-surface-container-lowest/30 p-3 rounded-xl">
-<p class="font-label-sm text-primary-fixed mb-1">Mã Lô: #BC-8492-VN</p>
-<p class="font-body-sm text-surface-container-lowest text-xs truncate">Trạng thái: Đã cập nhật lên sổ cái</p>
-</div>
-</div>
-</div>
-</div>
-</div>
-</section>
-<!-- Giá trị cốt lõi -->
-<section class="w-full py-xl px-margin-mobile md:px-margin-desktop bg-surface relative">
-<div class="absolute top-0 right-0 w-[500px] h-[500px] bg-primary-container/20 rounded-full blur-[120px] -z-10 pointer-events-none"></div>
-<div class="max-w-[1440px] mx-auto">
-<div class="text-center mb-xl max-w-2xl mx-auto">
-<span class="font-label-sm text-primary uppercase tracking-widest block mb-xs">Nền tảng sinh thái</span>
-<h2 class="font-headline-lg text-headline-md md:text-headline-lg font-bold text-on-surface">Giá trị cốt lõi từ BiCap</h2>
-</div>
-<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-md lg:gap-lg">
-<!-- Card 1 -->
-<div class="group bg-surface-container-lowest rounded-3xl p-lg shadow-sm hover:shadow-xl transition-all duration-300 border border-outline-variant/30 flex flex-col items-start gap-md relative overflow-hidden">
-<div class="absolute top-0 right-0 w-32 h-32 bg-primary-container/10 rounded-bl-full -z-10 transition-transform group-hover:scale-110"></div>
-<div class="w-16 h-16 rounded-2xl bg-primary-container/20 flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-on-primary transition-colors">
-<span class="material-symbols-outlined text-[32px] font-light" style="font-variation-settings: 'FILL' 1;">assured_workload</span>
-</div>
-<div>
-<h3 class="font-headline-md text-headline-md font-bold mb-xs text-on-surface">Minh bạch tuyệt đối</h3>
-<p class="font-body-md text-on-surface-variant line-clamp-3">Dữ liệu ghi trên blockchain không thể sửa đổi, đảm bảo tính xác thực 100% từ nông trại đến bàn ăn.</p>
-</div>
-</div>
-<!-- Card 2 -->
-<div class="group bg-surface-container-lowest rounded-3xl p-lg shadow-sm hover:shadow-xl transition-all duration-300 border border-outline-variant/30 flex flex-col items-start gap-md relative overflow-hidden">
-<div class="absolute top-0 right-0 w-32 h-32 bg-primary-container/10 rounded-bl-full -z-10 transition-transform group-hover:scale-110"></div>
-<div class="w-16 h-16 rounded-2xl bg-secondary-container flex items-center justify-center text-on-secondary-container group-hover:bg-primary group-hover:text-on-primary transition-colors">
-<span class="material-symbols-outlined text-[32px] font-light" style="font-variation-settings: 'FILL' 1;">storefront</span>
-</div>
-<div>
-<h3 class="font-headline-md text-headline-md font-bold mb-xs text-on-surface">Sàn giao dịch B2B/B2C</h3>
-<p class="font-body-md text-on-surface-variant line-clamp-3">Kết nối trực tiếp không qua trung gian, tối ưu hóa lợi nhuận cho người nông dân và giá tốt cho người mua.</p>
-</div>
-</div>
-<!-- Card 3 -->
-<div class="group bg-surface-container-lowest rounded-3xl p-lg shadow-sm hover:shadow-xl transition-all duration-300 border border-outline-variant/30 flex flex-col items-start gap-md relative overflow-hidden">
-<div class="absolute top-0 right-0 w-32 h-32 bg-primary-container/10 rounded-bl-full -z-10 transition-transform group-hover:scale-110"></div>
-<div class="w-16 h-16 rounded-2xl bg-tertiary-container flex items-center justify-center text-on-tertiary-container group-hover:bg-primary group-hover:text-on-primary transition-colors">
-<span class="material-symbols-outlined text-[32px] font-light" style="font-variation-settings: 'FILL' 1;">menu_book</span>
-</div>
-<div>
-<h3 class="font-headline-md text-headline-md font-bold mb-xs text-on-surface">Kiến thức chuẩn hóa</h3>
-<p class="font-body-md text-on-surface-variant line-clamp-3">Cung cấp thư viện quy trình canh tác đạt chuẩn VietGAP, GlobalGAP cho cộng đồng nông dân.</p>
-</div>
-</div>
-</div>
-</div>
-</section>
+<div class="guest-home">
+<header class="hero-section position-relative overflow-hidden pt-5 mt-5">
+        <div class="container py-5 position-relative z-2">
+            <div class="row align-items-center">
+                <div class="col-lg-7 text-center text-lg-start">
+                    <span class="badge bg-white text-success rounded-pill px-3 py-2 mb-3 shadow-sm fw-bold">
+                        <i class="material-symbols-rounded align-middle fs-6 me-1">verified</i> Được tin tưởng bởi 500+ nông trại
+                    </span>
+                    <h1 class="display-3 fw-bolder mb-3 lh-sm">
+                        Minh Bạch Hóa <br/> 
+                        <span style="color: #A5D6A7;">Nông Sản Việt</span>
+                    </h1>
+                    <p class="lead opacity-90 mb-4 fw-light" style="max-width: 600px;">
+                        Kết nối trực tiếp Nông dân và Người tiêu dùng thông qua công nghệ Blockchain. Mỗi sản phẩm là một câu chuyện minh bạch.
+                    </p>
+                    <div class="d-flex gap-3 justify-content-center justify-content-lg-start flex-wrap">
+                        <a href="/market" class="btn btn-light text-success fw-bold btn-lg px-4 shadow hover-up">
+                            <i class="material-symbols-rounded align-middle me-1">shopping_cart</i> Mua sắm ngay
+                        </a>
+                        <a href="/trace" class="btn btn-outline-light btn-lg px-4 hover-up">
+                            <i class="material-symbols-rounded align-middle me-1">qr_code_scanner</i> Truy xuất
+                        </a>
+                    </div>
+                    
+                    <div class="row mt-5 border-top border-white border-opacity-25 pt-4 g-4">
+                        <div class="col-4">
+                            <h3 class="fw-bold mb-0">10k+</h3>
+                            <small class="opacity-75">Sản phẩm sạch</small>
+                        </div>
+                        <div class="col-4">
+                            <h3 class="fw-bold mb-0">50k+</h3>
+                            <small class="opacity-75">Khách hàng</small>
+                        </div>
+                        <div class="col-4">
+                            <h3 class="fw-bold mb-0">1M+</h3>
+                            <small class="opacity-75">Block giao dịch</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-5 dF-none d-lg-block">
+                    <div class="card border-0 shadow-lg p-3 bg-white bg-opacity-10 backdrop-blur rounded-4">
+                        <div style="height: 400px; background: url('https://images.unsplash.com/photo-1625246333195-09870c4535cc?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80') center/cover; border-radius: 1rem;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="position-absolute top-0 end-0 bg-white opacity-10 rounded-circle" style="width: 600px; height: 600px; transform: translate(30%, -30%);"></div>
+    </header>
+
+    <section class="py-5">
+        <div class="container">
+            <div class="text-center mb-5">
+                <h6 class="text-success fw-bold text-uppercase ls-1">Giá trị cốt lõi</h6>
+                <h2 class="fw-bold">Tại sao chọn BiCap?</h2>
+                <p class="text-muted mx-auto" style="max-width: 600px;">Giải pháp toàn diện kết nối chuỗi giá trị nông nghiệp từ nông trại đến bàn ăn.</p>
+            </div>
+
+            <div class="row g-4">
+                <div class="col-md-6 col-lg-4">
+                    <div class="card h-100 p-4 text-center border-0 bg-white shadow-sm hover-up">
+                        <div class="icon-box mx-auto mb-3 bg-success-subtle text-success rounded-circle d-flex align-items-center justify-content-center" style="width: 64px; height: 64px;">
+                            <span class="material-symbols-rounded fs-2">verified_user</span>
+                        </div>
+                        <h5 class="fw-bold">Minh bạch 100%</h5>
+                        <p class="text-muted small">Mọi thông tin gieo trồng, thu hoạch được ghi lại trên Blockchain, không thể giả mạo hay sửa đổi.</p>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-4">
+                    <div class="card h-100 p-4 text-center border-0 bg-white shadow-sm hover-up">
+                        <div class="icon-box mx-auto mb-3 bg-primary-subtle text-primary rounded-circle d-flex align-items-center justify-content-center" style="width: 64px; height: 64px;">
+                            <span class="material-symbols-rounded fs-2">storefront</span>
+                        </div>
+                        <h5 class="fw-bold">Sàn Giao Dịch</h5>
+                        <p class="text-muted small">Mua trực tiếp từ nông trại với giá tốt nhất, loại bỏ các khâu trung gian không cần thiết.</p>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-4">
+                    <div class="card h-100 p-4 text-center border-0 bg-white shadow-sm hover-up">
+                        <div class="icon-box mx-auto mb-3 bg-warning-subtle text-warning rounded-circle d-flex align-items-center justify-content-center" style="width: 64px; height: 64px;">
+                            <span class="material-symbols-rounded fs-2">school</span>
+                        </div>
+                        <h5 class="fw-bold">Kiến Thức Chuẩn</h5>
+                        <p class="text-muted small">Cung cấp tài liệu giáo dục về nông nghiệp hữu cơ, tiêu chuẩn VietGAP/GlobalGAP miễn phí.</p>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-4">
+                    <div class="card h-100 p-4 text-center border-0 bg-white shadow-sm hover-up">
+                        <div class="icon-box mx-auto mb-3 bg-danger-subtle text-danger rounded-circle d-flex align-items-center justify-content-center" style="width: 64px; height: 64px;">
+                            <span class="material-symbols-rounded fs-2">qr_code_scanner</span>
+                        </div>
+                        <h5 class="fw-bold">Truy Xuất Dễ Dàng</h5>
+                        <p class="text-muted small">Chỉ cần 1 giây quét mã QR để xem toàn bộ hành trình sản phẩm với bằng chứng xác thực.</p>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-4">
+                    <div class="card h-100 p-4 text-center border-0 bg-white shadow-sm hover-up">
+                        <div class="icon-box mx-auto mb-3 bg-info-subtle text-info rounded-circle d-flex align-items-center justify-content-center" style="width: 64px; height: 64px;">
+                            <span class="material-symbols-rounded fs-2">local_shipping</span>
+                        </div>
+                        <h5 class="fw-bold">Vận Chuyển Nhanh</h5>
+                        <p class="text-muted small">Hệ thống Logistics tối ưu hóa lộ trình, đảm bảo nông sản luôn tươi ngon khi đến tay bạn.</p>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-4">
+                    <div class="card h-100 p-4 text-center border-0 bg-white shadow-sm hover-up">
+                        <div class="icon-box mx-auto mb-3 bg-secondary-subtle text-secondary rounded-circle d-flex align-items-center justify-content-center" style="width: 64px; height: 64px;">
+                            <span class="material-symbols-rounded fs-2">support_agent</span>
+                        </div>
+                        <h5 class="fw-bold">Hỗ Trợ 24/7</h5>
+                        <p class="text-muted small">Đội ngũ kỹ sư nông nghiệp và CSKH luôn sẵn sàng giải đáp thắc mắc của bà con.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="py-5 bg-white" id="about">
+        <div class="container">
+            <div class="row align-items-center g-5">
+                <div class="col-lg-6 order-2 order-lg-1">
+                    <div class="position-relative ps-4 pt-4">
+                        <img src="https://images.unsplash.com/photo-1605000797499-95a51c5269ae?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="About" class="img-fluid rounded-4 shadow-lg position-relative z-2">
+                        <div class="position-absolute top-0 start-0 w-100 h-100 bg-success rounded-4" style="transform: translate(-15px, -15px); z-index: 1; opacity: 0.1;"></div>
+                    </div>
+                </div>
+                <div class="col-lg-6 order-1 order-lg-2">
+                    <h6 class="text-success fw-bold text-uppercase">Về chúng tôi</h6>
+                    <h2 class="fw-bold mb-4">BiCap - Cầu nối Nông nghiệp Việt</h2>
+                    <p class="text-muted mb-4">
+                        BiCap được thành lập với sứ mệnh minh bạch hóa chuỗi cung ứng nông sản Việt Nam thông qua công nghệ. Chúng tôi tin rằng mỗi người tiêu dùng đều có quyền biết nguồn gốc thực phẩm họ sử dụng, và mỗi người nông dân tử tế đều xứng đáng được tôn vinh.
+                    </p>
+                    
+                    <div class="row g-3 mb-4">
+                        <div class="col-sm-6">
+                            <div class="d-flex align-items-center">
+                                <i class="material-symbols-rounded text-success me-2">check_circle</i>
+                                <span class="fw-semibold">An toàn thực phẩm</span>
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="d-flex align-items-center">
+                                <i class="material-symbols-rounded text-success me-2">check_circle</i>
+                                <span class="fw-semibold">Giá cả công bằng</span>
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="d-flex align-items-center">
+                                <i class="material-symbols-rounded text-success me-2">check_circle</i>
+                                <span class="fw-semibold">Bảo vệ môi trường</span>
+                            </div>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="d-flex align-items-center">
+                                <i class="material-symbols-rounded text-success me-2">check_circle</i>
+                                <span class="fw-semibold">Hỗ trợ nông dân</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <a href="/register" class="btn btn-bicap shadow-sm">
+                        <i class="material-symbols-rounded align-middle me-1">handshake</i> Trở thành đối tác
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="py-5">
+        <div class="container">
+            <div class="text-center mb-5">
+                <h6 class="text-success fw-bold text-uppercase">Đội ngũ</h6>
+                <h2 class="fw-bold">Ban Lãnh Đạo</h2>
+            </div>
+            <div class="row g-4 justify-content-center">
+                <div class="col-lg-3 col-md-6">
+                    <div class="card border-0 shadow-sm text-center p-4 hover-up h-100">
+                        <div class="mx-auto mb-3 position-relative">
+                            <div class="rounded-circle bg-success text-white d-flex align-items-center justify-content-center fw-bold fs-1 mx-auto" style="width: 100px; height: 100px; border: 4px solid #E8F5E9;">A</div>
+                        </div>
+                        <h5 class="fw-bold mb-1">Nguyễn Văn A</h5>
+                        <p class="text-muted small mb-0">CEO & Founder</p>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6">
+                    <div class="card border-0 shadow-sm text-center p-4 hover-up h-100">
+                        <div class="mx-auto mb-3 position-relative">
+                            <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center fw-bold fs-1 mx-auto" style="width: 100px; height: 100px; border: 4px solid #E3F2FD;">B</div>
+                        </div>
+                        <h5 class="fw-bold mb-1">Trần Thị B</h5>
+                        <p class="text-muted small mb-0">CTO</p>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6">
+                    <div class="card border-0 shadow-sm text-center p-4 hover-up h-100">
+                        <div class="mx-auto mb-3 position-relative">
+                            <div class="rounded-circle bg-warning text-white d-flex align-items-center justify-content-center fw-bold fs-1 mx-auto" style="width: 100px; height: 100px; border: 4px solid #FFF3E0;">C</div>
+                        </div>
+                        <h5 class="fw-bold mb-1">Lê Văn C</h5>
+                        <p class="text-muted small mb-0">COO</p>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6">
+                    <div class="card border-0 shadow-sm text-center p-4 hover-up h-100">
+                        <div class="mx-auto mb-3 position-relative">
+                            <div class="rounded-circle bg-info text-white d-flex align-items-center justify-content-center fw-bold fs-1 mx-auto" style="width: 100px; height: 100px; border: 4px solid #E1F5FE;">D</div>
+                        </div>
+                        <h5 class="fw-bold mb-1">Phạm Thị D</h5>
+                        <p class="text-muted small mb-0">CMO</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="py-5 bg-light" id="education">
+        <div class="container">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <h6 class="text-success fw-bold text-uppercase mb-1">Kiến thức</h6>
+                    <h2 class="fw-bold mb-0">Góc Nhà Nông</h2>
+                </div>
+                <a href="#" class="btn btn-outline-success rounded-pill d-none d-md-inline-block">Xem tất cả</a>
+            </div>
+
+            <div class="row g-4">
+                <div class="col-md-4">
+                    <div class="card h-100 border-0 shadow-sm overflow-hidden hover-up">
+                        <div class="bg-success-subtle d-flex align-items-center justify-content-center" style="height: 200px;">
+                            <span class="fs-1">🥬</span>
+                        </div>
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="badge bg-success-subtle text-success">Kỹ thuật</span>
+                                <small class="text-muted">5 phút đọc</small>
+                            </div>
+                            <h5 class="card-title fw-bold">Quy trình trồng rau thủy canh</h5>
+                            <p class="card-text text-muted small">Hướng dẫn chi tiết cách thiết lập hệ thống thủy canh tại nhà đơn giản và hiệu quả cho người mới bắt đầu.</p>
+                            <a href="#" class="btn btn-link text-success p-0 fw-bold text-decoration-none">Đọc thêm →</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card h-100 border-0 shadow-sm overflow-hidden hover-up">
+                        <div class="bg-primary-subtle d-flex align-items-center justify-content-center" style="height: 200px;">
+                            <span class="fs-1">⛓️</span>
+                        </div>
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="badge bg-primary-subtle text-primary">Công nghệ</span>
+                                <small class="text-muted">8 phút đọc</small>
+                            </div>
+                            <h5 class="card-title fw-bold">Hiểu về Blockchain nông nghiệp</h5>
+                            <p class="card-text text-muted small">Tại sao Blockchain lại quan trọng trong việc chống hàng giả và bảo vệ thương hiệu nông sản Việt?</p>
+                            <a href="#" class="btn btn-link text-primary p-0 fw-bold text-decoration-none">Đọc thêm →</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card h-100 border-0 shadow-sm overflow-hidden hover-up">
+                        <div class="bg-warning-subtle d-flex align-items-center justify-content-center" style="height: 200px;">
+                            <span class="fs-1">📋</span>
+                        </div>
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span class="badge bg-warning-subtle text-warning text-dark">Tiêu chuẩn</span>
+                                <small class="text-muted">6 phút đọc</small>
+                            </div>
+                            <h5 class="card-title fw-bold">Tiêu chuẩn VietGAP là gì?</h5>
+                            <p class="card-text text-muted small">Tìm hiểu về các tiêu chuẩn chất lượng nông sản sạch và quy trình để đạt được chứng nhận này.</p>
+                            <a href="#" class="btn btn-link text-warning p-0 fw-bold text-decoration-none">Đọc thêm →</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="py-5" style="background: linear-gradient(135deg, #1B5E20, #2E7D32);">
+        <div class="container text-center text-white py-4">
+            <h2 class="fw-bold mb-3">Sẵn sàng tham gia cùng chúng tôi?</h2>
+            <p class="opacity-75 mb-4 mx-auto" style="max-width: 600px;">
+                Dù bạn là nông dân muốn bán sản phẩm, hay người tiêu dùng muốn mua nông sản sạch, BiCap đều chào đón bạn.
+            </p>
+            <div class="d-flex justify-content-center gap-3">
+                <a href="/register" class="btn btn-light text-success fw-bold px-4 shadow">
+                    <i class="material-symbols-rounded align-middle me-1">edit_square</i> Đăng ký ngay
+                </a>
+                <a href="/market" class="btn btn-outline-light px-4">
+                    <i class="material-symbols-rounded align-middle me-1">search</i> Khám phá sàn
+                </a>
+            </div>
+        </div>
+    </section>
 </div>
 </template>
+
 <script setup>
 </script>
+
+<style scoped>
+.hover-up { transition: transform 0.2s; }
+.hover-up:hover { transform: translateY(-5px); }
+</style>

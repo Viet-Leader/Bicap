@@ -17,7 +17,7 @@ public class CustomUserDetailsService implements UserDetailsService {
             throws UsernameNotFoundException {
 
         Account account = accountRepository
-                .findByUsername(username)
+            .findByUsernameOrEmail(username, username)
                 .orElseThrow(() ->
                         new UsernameNotFoundException("Invalid username or password"));
 

@@ -4,8 +4,12 @@ export default {
     REGISTER: '/auth/register',
   },
   ADMIN: {
-    ACCOUNTS: '/admin/accounts',
-    FARMS: '/admin/farms'
+    ACCOUNTS: '/accounts',
+    FARMS: '/farms',
+    CROPS: '/crops',
+    PRODUCTS: '/products',
+    ORDERS: '/orders',
+    NOTIFICATIONS: '/notifications'
   },
   FARM: {
     PROFILE: '/farm/profile',

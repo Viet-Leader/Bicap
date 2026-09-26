@@ -60,7 +60,10 @@ public class AuthServiceImpl implements AuthService {
         );
 
         Account account = accountRepository
-                .findByUsername(request.getUsername())
+            .findByUsernameOrEmail(
+                request.getUsername(),
+                request.getUsername()
+            )
                 .orElseThrow(() ->
                         new UnauthorizedException("Invalid username or password."));
 

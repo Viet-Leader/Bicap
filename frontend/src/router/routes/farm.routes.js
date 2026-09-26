@@ -5,9 +5,11 @@ export default [
     meta: { requiresAuth: true, role: 'FARM' },
     children: [
       { path: '', name: 'farm-dashboard', component: () => import('@/views/FarmDashboardView.vue') },
-      { path: 'profile', name: 'farm-profile', component: () => import('@/views/farm/FarmProfile.vue') },
+      { path: 'products', name: 'farm-products', component: () => import('@/views/farm/FarmProducts.vue') },
       { path: 'seasons', name: 'farm-seasons', component: () => import('@/views/farm/SeasonManagement.vue') },
-      { path: 'orders', name: 'farm-orders', component: () => import('@/views/farm/FarmOrders.vue') }
+      { path: 'farm-info', name: 'farm-info', component: () => import('@/views/farm/FarmInfo.vue') },
+      { path: 'notifications', name: 'farm-notifications', component: () => import('@/views/farm/FarmNotifications.vue') },
+      { path: 'profile', redirect: { name: 'farm-info' } }
     ]
   }
 ];

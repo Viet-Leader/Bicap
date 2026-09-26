@@ -6,6 +6,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,6 +36,15 @@ public class Farm {
 
     @Column(name = "address", nullable = false, length = 255)
     private String address;
+
+    @Column(name = "email", length = 100)
+    private String email;
+
+    @Column(name = "area_size", precision = 12, scale = 2)
+    private BigDecimal areaSize;
+
+    @Column(name = "image_url", columnDefinition = "TEXT")
+    private String imageUrl;
 
     @Column(name = "description", columnDefinition = "TEXT")
     private String description;

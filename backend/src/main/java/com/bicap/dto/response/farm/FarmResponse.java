@@ -4,6 +4,7 @@ import lombok.Builder;
 import lombok.Data;
 
 import java.time.LocalDateTime;
+import java.math.BigDecimal;
 
 /**
  * DTO trả về thông tin Farm.
@@ -31,6 +32,12 @@ public class FarmResponse {
      * Địa chỉ.
      */
     private String address;
+
+    private String email;
+
+    private BigDecimal areaSize;
+
+    private String imageUrl;
 
     /**
      * Mô tả.

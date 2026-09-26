@@ -13,6 +13,9 @@ public interface FarmMapper {
 
     @Mapping(target = "farmId", ignore = true)
     @Mapping(target = "account", ignore = true)
+    @Mapping(target = "email", source = "email")
+    @Mapping(target = "areaSize", ignore = true)
+    @Mapping(target = "imageUrl", ignore = true)
     @Mapping(target = "status", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)

@@ -24,6 +24,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Optional;
 @Service
 @RequiredArgsConstructor
@@ -195,14 +196,17 @@ public CartResponse getMyCart() {
 
     Retailer retailer = getCurrentRetailer();
 
-    Cart cart = cartRepository
-            .findByRetailer(retailer)
-            .orElseThrow(() ->
-                    new ResourceNotFoundException(
-                            "Cart not found."
-                    ));
+    Optional<Cart> cartOpt = cartRepository.findByRetailer(retailer);
 
-    return buildResponse(cart);
+    if (cartOpt.isEmpty()) {
+        // Giỏ hàng chưa tồn tại (hoặc bị xóa sau khi xóa item cuối)
+        return CartResponse.builder()
+                .items(new ArrayList<>())
+                .totalAmount(BigDecimal.ZERO)
+                .build();
+    }
+
+    return buildResponse(cartOpt.get());
 }
 @Override
 public CartResponse addItem(AddCartItemRequest request) {

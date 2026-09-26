@@ -255,6 +255,7 @@ public ProductDetailResponse changeStatus(
     return productMapper.toDetail(product);
 }
 @Override
+@Transactional(readOnly = true)
 public Page<ProductSummaryResponse> getPublicProducts(
         String keyword,
         Long cropId,

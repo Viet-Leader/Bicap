@@ -1,31 +1,84 @@
-<script setup>
-import { onMounted, ref } from 'vue'
-import axiosClient from '../../api/axiosClient'
-
-const orders = ref([])
-const notice = ref('')
-
-const loadOrders = async () => {
-  try {
-    const { data } = await axiosClient.get('/orders/farm')
-    orders.value = data
-  } catch (error) {
-    notice.value = error.response?.data?.message || 'Unable to load farm orders.'
-  }
-}
-
-const confirmOrder = async (order) => {
-  try {
-    await axiosClient.patch(`/orders/${order.orderId}/confirm`)
-    await loadOrders()
-  } catch (error) {
-    notice.value = error.response?.data?.message || 'Unable to confirm order.'
-  }
-}
-
-onMounted(loadOrders)
-</script>
-
 <template>
-  <section class="mx-auto max-w-6xl"><p class="text-xs font-bold uppercase tracking-[.22em] text-[#6f8e42]">Fulfillment</p><h1 class="mt-3 text-4xl font-bold">Farm orders</h1><p class="mt-3 text-[#668078]">Confirm incoming orders and keep the handoff visible.</p><p v-if="notice" class="mt-5 text-red-700">{{ notice }}</p><div class="mt-10 space-y-4"><article v-for="order in orders" :key="order.orderId" class="border border-[#dce4d8] bg-white p-6"><div class="flex flex-wrap justify-between gap-4"><div><p class="text-xs uppercase tracking-widest text-[#91a49b]">Order #{{ order.orderId }}</p><h2 class="mt-2 text-xl font-bold">{{ order.retailerName }}</h2><p class="mt-1 text-sm text-[#668078]">{{ order.createdAt }}</p></div><span class="bg-[#eaf3d3] px-3 py-2 text-xs font-bold text-[#58752d]">{{ order.status }}</span></div><div class="mt-5 flex justify-between border-t border-[#e4ebe0] pt-4"><span>{{ order.orderDetails?.length || 0 }} batches</span><button v-if="order.status === 'PENDING'" class="bg-[#173f35] px-4 py-2 text-sm font-bold text-white" @click="confirmOrder(order)">Confirm order</button></div></article><p v-if="!orders.length" class="border border-dashed border-[#cbd8c5] p-8 text-center text-[#668078]">No orders yet.</p></div></section>
+<div class="container-fluid py-1 px-3">
+                <nav aria-label="breadcrumb">
+                    <ol class="breadcrumb bg-transparent mb-0 pb-0 pt-1 px-0 me-sm-6 me-5">
+                        <li class="breadcrumb-item text-sm"><a class="opacity-5 text-dark" href="javascript:;">Pages</a>
+                        </li>
+                        <li class="breadcrumb-item text-sm text-dark active" aria-current="page">Shipping</li>
+                    </ol>
+                </nav>
+                <div class="collapse navbar-collapse mt-sm-0 mt-2 me-md-0 me-sm-4" id="navbar">
+                    <div class="ms-md-auto pe-md-3 d-flex align-items-center">
+                    </div>
+                    <ul class="navbar-nav d-flex align-items-center  justify-content-end">
+
+
+                        <li class="nav-item d-xl-none ps-3 d-flex align-items-center">
+                            <a href="javascript:;" class="nav-link text-body p-0" id="iconNavbarSidenav">
+                                <div class="sidenav-toggler-inner">
+                                    <i class="sidenav-toggler-line"></i>
+                                    <i class="sidenav-toggler-line"></i>
+                                    <i class="sidenav-toggler-line"></i>
+                                </div>
+                            </a>
+                        </li>
+                        <li class="nav-item px-3 d-flex align-items-center">
+                            <a href="javascript:;" class="nav-link text-body p-0">
+                                <i class="material-symbols-rounded fixed-plugin-button-nav">settings</i>
+                            </a>
+                        </li>
+                        <li class="nav-item dropdown pe-3 d-flex align-items-center">
+                            <a href="javascript:;" class="nav-link text-body p-0" id="dropdownMenuButton"
+                                data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="material-symbols-rounded">notifications</i>
+                            </a>
+                            <ul class="dropdown-menu  dropdown-menu-end  px-2 py-3 me-sm-n4"
+                                aria-labelledby="dropdownMenuButton">
+                            </ul>
+                        </li>
+                        <li class="nav-item d-flex align-items-center">
+                            <a href="/profile" class="nav-link text-body font-weight-bold px-0">
+                                <i class="material-symbols-rounded">account_circle</i>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        <div class="container-fluid py-4">
+            <div class="row">
+                <div class="col-12">
+                    <div class="card my-4">
+                        <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
+                            <div class="bg-gradient-success shadow-success border-radius-lg pt-4 pb-3">
+                                <h6 class="text-white text-capitalize ps-3">Quản lý vận chuyển</h6>
+                            </div>
+                        </div>
+                        <div class="card-body px-0 pb-2">
+                            <div class="text-center p-5">
+                                <i class="material-symbols-rounded text-muted" style="font-size: 64px;">history_toggle_off</i>
+                                <h5 class="mt-3">Tính năng đang được phát triển</h5>
+                                <p class="text-muted">Chức năng quản lý vận chuyển sẽ sớm được ra mắt. Vui lòng quay lại sau.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <footer class="footer py-4  ">
+                <div class="container-fluid">
+                    <div class="row align-items-center justify-content-lg-between">
+                        <div class="col-lg-6 mb-lg-0 mb-4">
+                            <div class="copyright text-center text-sm text-muted text-lg-start">
+                                © <script>
+                                    document.write(new Date().getFullYear())
+                                </script>, made with <i class="fa fa-heart"></i> by BiCap Team
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </footer>
+        </div>
+    
 </template>
+
+<script setup>
+</script>

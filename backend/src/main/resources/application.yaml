@@ -3,7 +3,7 @@ spring:
     name: backend
 
   datasource:
-    url: jdbc:postgresql://localhost:5432/bicap_db
+    url: jdbc:postgresql://localhost:5432/bicap_db?options=-c%20TimeZone%3DUTC
     username: postgres
     password: 123456
 
