@@ -103,6 +103,24 @@ void checkBlockchainAccount() throws Exception {
     }
 
     @Test
+    void submitSeasonActivity_shouldReturnTransactionHash() throws Exception {
+
+        String dataHash = sha256(
+                "BICAP Season Activity Test"
+        );
+
+        String transactionHash =
+                blockchainClient.submitSeasonActivity(
+                        999L,
+                        dataHash
+                );
+
+        assertNotNull(transactionHash);
+        assertTrue(transactionHash.startsWith("0x"));
+        assertEquals(66, transactionHash.length());
+    }
+
+    @Test
     void submitTransaction_shouldRejectInvalidBatchId() {
 
         String dataHash =

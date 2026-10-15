@@ -274,7 +274,7 @@ public Page<ProductSummaryResponse> getPublicProducts(
     if (!hasKeyword && !hasCrop) {
 
         products =
-                productRepository.findByStatus(
+                productRepository.findPublicProductsWithAvailableBatch(
                         AccountStatus.ACTIVE,
                         pageable
                 );
@@ -283,7 +283,7 @@ public Page<ProductSummaryResponse> getPublicProducts(
 
         products =
                 productRepository
-                        .findByStatusAndProductNameContainingIgnoreCase(
+                        .searchPublicProductsWithAvailableBatch(
                                 AccountStatus.ACTIVE,
                                 keyword.trim(),
                                 pageable
@@ -315,6 +315,7 @@ public Page<ProductSummaryResponse> getPublicProducts(
     return products.map(this::toSummary);
 }
 @Override
+@Transactional(readOnly = true)
 public ProductDetailResponse getPublicProduct(
         Long productId
 ) {

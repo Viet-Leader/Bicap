@@ -8,7 +8,7 @@ export default [
       { path: 'login', name: 'login', component: () => import('@/views/auth/Login.vue') },
       { path: 'register', name: 'register', component: () => import('@/features/auth/RegisterView.vue') },
       { path: 'trace', name: 'trace-search', component: () => import('@/views/TraceSearch.vue') },
-      { path: 'trace/:batchCode', name: 'traceability', component: () => import('@/views/TraceabilityView.vue') }
+      { path: 'trace/:batchId', name: 'traceability', component: () => import('@/views/TraceabilityView.vue') }
     ]
   }
 ];

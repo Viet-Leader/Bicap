@@ -17,4 +17,6 @@ public class SeasonActivitySummaryResponse {
 
     private LocalDateTime activityTime;
 
+    private String blockchainTxHash;
+
 }

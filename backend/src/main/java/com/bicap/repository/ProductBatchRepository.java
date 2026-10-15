@@ -18,6 +18,8 @@ public interface ProductBatchRepository extends JpaRepository<ProductBatch, Long
     // Danh sách Batch của Product
     List<ProductBatch> findByProductProductId(Long productId);
 
+        List<ProductBatch> findByFarmingSeasonSeasonId(Long seasonId);
+
     // Có phân trang
     Page<ProductBatch> findByProductProductId(
             Long productId,

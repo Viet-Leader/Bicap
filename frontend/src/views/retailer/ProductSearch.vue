@@ -10,9 +10,11 @@ const keyword = ref('')
 const products = ref([])
 const isLoading = ref(false)
 const errorMessage = ref('')
-const selectedProduct = ref(null)
-
 const imageUrl = (path) => path || ''
+
+const markImageAsUnavailable = (product) => {
+  product.imageUnavailable = true
+}
 
 const loadProducts = async () => {
   isLoading.value = true
@@ -30,14 +32,6 @@ const loadProducts = async () => {
   } finally {
     isLoading.value = false
   }
-}
-
-const openProductDetail = (product) => {
-  selectedProduct.value = product
-}
-
-const closeProductDetail = () => {
-  selectedProduct.value = null
 }
 
 const addToCart = async (product) => {
@@ -67,13 +61,20 @@ onMounted(loadProducts)
         <div v-for="p in products" :key="p.productId" class="product-card" :data-name="p.productName?.toLowerCase()">
           <!-- IMAGE -->
           <div class="product-image">
-            <img v-if="p.thumbnail" :src="imageUrl(p.thumbnail)" :alt="p.productName">
+            <img
+              v-if="p.thumbnail && !p.imageUnavailable"
+              :src="imageUrl(p.thumbnail)"
+              :alt="p.productName"
+              loading="lazy"
+              @error="markImageAsUnavailable(p)"
+            >
             <div v-else class="product-image-empty" aria-label="Chưa có ảnh sản phẩm">Chưa có ảnh</div>
           </div>
 
           <!-- INFO -->
           <div class="product-info">
             <h3>{{ p.productName }}</h3>
+            <p class="product-type">Loại sản phẩm: {{ p.cropName }}</p>
             <p class="farm">{{ p.farmName }}</p>
             <p class="price">{{ p.unitPrice?.toLocaleString('vi-VN') }} VND / {{ p.unit || 'đơn vị' }}</p>
             <p class="farm">Còn lại: {{ p.remainingQuantity }} {{ p.unit || '' }}</p>
@@ -81,9 +82,13 @@ onMounted(loadProducts)
 
           <!-- ACTION -->
           <div class="product-actions">
-            <button class="btn-outline" @click="openProductDetail(p)">
-               Xem chi tiết
-            </button>
+            <RouterLink
+              v-if="p.batchId"
+              :to="`/trace/${p.batchId}`"
+              class="btn-outline"
+            >
+              Truy xuất
+            </RouterLink>
             <button
                 class="btn-primary add-to-cart-btn"
                 @click="addToCart(p)"
@@ -95,27 +100,6 @@ onMounted(loadProducts)
       </div>
     </div>
 
-    <!-- PRODUCT DETAIL MODAL -->
-    <div v-if="selectedProduct" class="qr-overlay" id="productDetailOverlay" @click="closeProductDetail">
-      <div class="product-detail-modal" @click.stop>
-        <button class="product-detail-close" @click="closeProductDetail">&times;</button>
-        <div class="product-detail-content">
-          <div class="product-detail-image-wrap">
-            <img v-if="selectedProduct.thumbnail" id="productDetailImg" :src="imageUrl(selectedProduct.thumbnail)" :alt="selectedProduct.productName">
-            <div v-else class="product-image-empty" aria-label="Chưa có ảnh sản phẩm">Chưa có ảnh</div>
-          </div>
-          <div class="product-detail-info">
-            <h3 id="productDetailName">{{ selectedProduct.productName }}</h3>
-            <p class="product-detail-meta"><span id="productDetailFarm">Farm: {{ selectedProduct.farmName }}</span></p>
-            <p class="product-detail-price" id="productDetailPrice">{{ selectedProduct.unitPrice?.toLocaleString('vi-VN') }} VND / {{ selectedProduct.unit || 'đơn vị' }}</p>
-            <p class="product-detail-desc" id="productDetailDesc">{{ selectedProduct.description || 'Sản phẩm an toàn từ mạng lưới BICAP.' }}</p>
-            <button class="btn-primary add-to-cart-detail" id="productDetailAddCart" @click="addToCart(selectedProduct); closeProductDetail()">
-              Thêm vào giỏ
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
   </div>
 </template>
 
@@ -129,5 +113,19 @@ onMounted(loadProducts)
   color: #718078;
   background: #f3f6f4;
   font-size: 0.85rem;
+}
+
+.product-image {
+  min-height: 160px;
+  aspect-ratio: 4 / 3;
+}
+
+.product-image img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: center;
+  background: #f3f6f4;
 }
 </style>

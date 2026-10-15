@@ -1,6 +1,7 @@
 @use "variables" as *;
 @use "glass" as *;
 @use "animations" as *;
+@use "sass:color";
 
 @tailwind base;
 @tailwind components;
@@ -38,7 +39,7 @@ a {
   transition: color 0.2s;
   
   &:hover {
-    color: lighten($primary-cyan, 10%);
+    color: color.scale($primary-cyan, $lightness: 20%);
   }
 }
 

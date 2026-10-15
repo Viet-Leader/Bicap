@@ -28,6 +28,7 @@ import com.bicap.service.BlockchainService;
 import com.bicap.service.ProductBatchService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -132,6 +133,15 @@ public class ProductBatchServiceImpl implements ProductBatchService {
 
         return season;
     }
+
+        @Override
+        public List<ProductBatchSummaryResponse> getBySeason(Long seasonId) {
+                getSeason(seasonId);
+                return productBatchMapper.toSummaryList(
+                                productBatchRepository.findByFarmingSeasonSeasonId(seasonId)
+                );
+        }
+
 @Override
 public Page<ProductBatchSummaryResponse> getByProduct(
         Long productId,
@@ -157,6 +167,7 @@ public ProductBatchDetailResponse getById(Long batchId) {
     return productBatchMapper.toDetail(batch);
 }
 @Override
+@Transactional
 public ProductBatchDetailResponse create(
         Long productId,
         CreateProductBatchRequest request
@@ -173,26 +184,23 @@ public ProductBatchDetailResponse create(
 
     batch.setFarmingSeason(season);
 
+        product.getProductBatches().add(batch);
+        season.getProductBatches().add(batch);
+
     batch.setStatus(ProductBatchStatus.AVAILABLE);
 
     batch.setRemainingQuantity(
             request.getQuantity()
     );
 
-    // save lần 1 để có batchId
-    batch = productBatchRepository.save(batch);
-
     batch.setBatchCode(
-            batchCodeGenerator.generate(
-                    batch.getBatchId()
-            )
+            batchCodeGenerator.generate()
     );
 
     batch.setQrCode(
             qrCodeGenerator.generate()
     );
 
-    // save lần 2
     batch = productBatchRepository.save(batch);
 
     return productBatchMapper.toDetail(batch);

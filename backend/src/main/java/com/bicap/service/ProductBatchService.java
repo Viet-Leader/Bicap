@@ -1,6 +1,7 @@
 package com.bicap.service;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -17,6 +18,8 @@ public interface ProductBatchService {
             Long productId,
             Pageable pageable
     );
+
+    List<ProductBatchSummaryResponse> getBySeason(Long seasonId);
 
     ProductBatchDetailResponse getById(Long batchId);
 

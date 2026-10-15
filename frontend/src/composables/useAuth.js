@@ -12,10 +12,7 @@ export function useAuth() {
     loading.value = true;
     error.value = null;
     try {
-      // Mock login since backend might not be ready
-      setTimeout(() => {
-        store.login(credentials);
-      }, 500);
+      await store.login(credentials.username || credentials.email, credentials.password);
       return true;
     } catch (err) {
       error.value = err.message || 'Login failed';

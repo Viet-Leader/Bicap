@@ -25,6 +25,8 @@ public class SeasonActivityDetailResponse {
 
     private String description;
 
+    private String blockchainTxHash;
+
     private LocalDateTime createdAt;
 
     private LocalDateTime updatedAt;

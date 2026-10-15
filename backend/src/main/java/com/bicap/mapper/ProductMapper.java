@@ -82,7 +82,11 @@ public interface ProductMapper {
                 .filter(batch -> batch.getStatus() == ProductBatchStatus.AVAILABLE)
                 .filter(batch -> batch.getRemainingQuantity() != null
                         && batch.getRemainingQuantity().compareTo(BigDecimal.ZERO) > 0)
-                .min(java.util.Comparator.comparing(ProductBatch::getUnitPrice));
+                .max(java.util.Comparator
+                        .comparing(ProductBatch::getCreatedAt,
+                                java.util.Comparator.nullsFirst(java.util.Comparator.naturalOrder()))
+                        .thenComparing(ProductBatch::getBatchId,
+                                java.util.Comparator.nullsFirst(java.util.Comparator.naturalOrder())));
     }
 
     /**

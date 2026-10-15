@@ -192,8 +192,13 @@ onMounted(() => {
                 <!-- Product Info -->
                 <div class="card-body d-flex flex-column">
                     <h6 class="font-weight-bold mb-1 text-truncate" :title="product.productName">{{ product.productName }}</h6>
-                    <p class="text-muted small mb-1 text-truncate">🌿 {{ product.cropName }}</p>
+                    <p class="text-muted small mb-1 text-truncate">🌿 Loại sản phẩm: {{ product.cropName }}</p>
                     <p class="text-muted small mb-2 text-truncate">🏠 {{ product.farmName }}</p>
+
+                    <div class="border-top pt-2 mb-2">
+                        <p class="text-muted small mb-0">Sản phẩm: {{ product.productName }}</p>
+                        <p class="text-muted small mb-0">Loại: {{ product.cropName }}</p>
+                    </div>
 
                     <!-- Tồn kho & Hạng -->
                     <div class="mb-2 d-flex flex-wrap gap-1">
@@ -217,8 +222,8 @@ onMounted(() => {
                             </div>
                         </div>
                         <div class="d-flex gap-2">
-                            <RouterLink v-if="product.batchCode"
-                                        :to="`/trace/${product.batchCode}`"
+                            <RouterLink v-if="product.batchId"
+                                        :to="`/trace/${product.batchId}`"
                                         class="btn btn-sm btn-outline-success flex-grow-1 rounded-pill">
                                 📱 Truy xuất
                             </RouterLink>

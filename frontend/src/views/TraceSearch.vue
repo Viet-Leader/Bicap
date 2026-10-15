@@ -2,13 +2,67 @@
 <script setup>
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
+import jsQR from 'jsqr'
 
 const router = useRouter()
 const batchId = ref('')
+const fileInput = ref(null)
+const scanError = ref('')
+const scanningImage = ref(false)
 
 const searchBatch = () => {
   if (!batchId.value.trim()) return
   router.push(`/trace/${batchId.value.trim()}`)
+}
+
+const openImagePicker = () => {
+    scanError.value = ''
+    fileInput.value?.click()
+}
+
+const extractTraceId = (value) => {
+    const decoded = value.trim()
+    try {
+        const url = new URL(decoded)
+        const traceMatch = url.pathname.match(/\/trace\/([^/]+)/i)
+        if (traceMatch) return decodeURIComponent(traceMatch[1])
+    } catch {
+        // QR may contain a plain batch id instead of a URL.
+    }
+    return decoded
+}
+
+const scanImage = async (event) => {
+    const file = event.target.files?.[0]
+    event.target.value = ''
+    if (!file) return
+
+    scanError.value = ''
+    scanningImage.value = true
+    try {
+        const bitmap = await createImageBitmap(file)
+        const canvas = document.createElement('canvas')
+        canvas.width = bitmap.width
+        canvas.height = bitmap.height
+        const context = canvas.getContext('2d', { willReadFrequently: true })
+        context.drawImage(bitmap, 0, 0)
+        const image = context.getImageData(0, 0, canvas.width, canvas.height)
+        const result = jsQR(image.data, image.width, image.height)
+        bitmap.close()
+
+        if (!result?.data) {
+            throw new Error('Không tìm thấy mã QR trong ảnh. Hãy chọn ảnh rõ hơn.')
+        }
+
+        const traceId = extractTraceId(result.data)
+        if (!traceId) throw new Error('Mã QR không chứa mã truy xuất hợp lệ.')
+        batchId.value = traceId
+        router.push(`/trace/${encodeURIComponent(traceId)}`)
+    } catch (error) {
+        scanError.value = error.message || 'Không thể đọc ảnh QR.'
+    } finally {
+        scanningImage.value = false
+    }
 }
 </script>
 
@@ -43,25 +97,18 @@ const searchBatch = () => {
                     </div>
 
                     <div class="text-center">
-                        <button id="start-scan-btn" class="btn btn-outline-success">
-                            📷 Quét mã QR
+                        <input
+                            ref="fileInput"
+                            class="d-none"
+                            type="file"
+                            accept="image/png,image/jpeg,image/webp,image/gif"
+                            @change="scanImage"
+                        >
+                        <button id="start-scan-btn" type="button" class="btn btn-outline-success" :disabled="scanningImage" @click="openImagePicker">
+                            <span v-if="scanningImage" class="spinner-border spinner-border-sm me-1"></span>
+                            {{ scanningImage ? 'Đang đọc ảnh...' : '📷 Quét mã QR' }}
                         </button>
-                    </div>
-
-                    <!-- QR Scanner Interface (Hidden by default, shown on click) -->
-                    <div class="qr-scanner mt-3 d-none">
-                        <div class="ratio ratio-4x3 bg-dark">
-                            <video id="qr-video" class="w-100 h-100 object-fit-cover"></video>
-                        </div>
-                        <div class="qr-overlay">
-                            <div class="qr-corner top-left"></div>
-                            <div class="qr-corner top-right"></div>
-                            <div class="qr-corner bottom-left"></div>
-                            <div class="qr-corner bottom-right"></div>
-                        </div>
-                        <div class="text-center p-2 bg-success text-white">
-                            Đang quét... <button type="button" class="btn btn-sm btn-light ms-2">Dừng</button>
-                        </div>
+                        <p v-if="scanError" class="text-danger small mt-2 mb-0">{{ scanError }}</p>
                     </div>
                 </div>
             </div>

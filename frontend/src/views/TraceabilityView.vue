@@ -1,6 +1,7 @@
 <script setup>
 import { computed, onMounted, ref } from 'vue'
 import { useRoute } from 'vue-router'
+import axiosClient from '@/api/axiosClient'
 
 const route = useRoute()
 const traceability = ref(null)
@@ -8,50 +9,46 @@ const isLoading = ref(true)
 const errorMessage = ref('')
 const copied = ref(false)
 
-const batchId = computed(() => route.params.batchCode)
+const batchId = computed(() => route.params.batchId)
 const isVerified = computed(() => traceability.value?.blockchainStatus === 'SUCCESS')
 
 const loadTraceability = async () => {
   isLoading.value = true
   errorMessage.value = ''
   try {
-    // Mocking an API call
-    await new Promise(resolve => setTimeout(resolve, 1500))
-    
-    if (batchId.value === 'INVALID') {
-      throw new Error('Mã lô hàng không tồn tại trên hệ thống.')
-    }
-    
-    traceability.value = {
-      productName: 'Xoài Cát Hòa Lộc',
-      batchId: batchId.value,
-      category: 'Trái cây',
-      icon: '🥭',
-      harvestDate: '10/05/2026',
-      farmName: 'Trang trại Xoài Cát Hòa Lộc',
-      farmLocation: 'Tiền Giang',
-      farmArea: '5 ha',
-      farmRating: 4.8,
-      certifications: ['VietGAP', 'GlobalGAP'],
-      blockchainStatus: 'SUCCESS',
-      contractAddress: '0xabc123...def456',
-      quality: {
-          freshness: 98,
-          safety: 100,
-          organic: 95
-      },
-      timeline: [
-        { stage: 'Gieo trồng', title: 'Bắt đầu vụ mùa', description: 'Gieo 500 cây giống loại A', date: '15/01/2026', location: 'Khu A', txHash: '0x1c44a82f9b21f4d1e3a89b21f4d1e3a89b21f4d1' },
-        { stage: 'Chăm sóc', title: 'Bón phân hữu cơ', description: 'Sử dụng phân bò ủ vi sinh', date: '20/02/2026', location: 'Khu A', txHash: '0x2d55b930ac32g5e2f4b90c32g5e2f4b90c32g5e2' },
-        { stage: 'Thu hoạch', title: 'Thu hoạch Xoài Cát', description: 'Đạt sản lượng 500kg', date: '10/05/2026', location: 'Khu A', txHash: '0x3e66c041bd43h6f3g5c01d43h6f3g5c01d43h6f3' }
-      ]
-    }
+        const { data } = await axiosClient.get(`/public/traceability/batch/${batchId.value}`)
+        traceability.value = {
+            ...data,
+            batchId: data.batchCode || data.batchId,
+            category: data.cropName || 'Nông sản',
+            icon: '🌾',
+            harvestDate: formatDate(data.actualHarvestDate || data.expectedHarvestDate),
+            farmLocation: 'Đang cập nhật',
+            farmArea: 'Đang cập nhật',
+            farmRating: 'Đang cập nhật',
+            certifications: [],
+            blockchainStatus: data.blockchainStatus || 'PENDING',
+            contractAddress: 'Được xác thực bởi BICAP',
+            quality: { freshness: 0, safety: 0, organic: 0 },
+            timeline: (data.activities || []).map(activity => ({
+                stage: activity.activityType,
+                title: activity.activityType,
+                description: activity.description,
+                date: formatDate(activity.activityTime),
+                location: data.farmName,
+                txHash: null,
+            })),
+        }
   } catch (error) {
     errorMessage.value = error.message || 'Không thể tải dữ liệu hành trình sản phẩm.'
   } finally {
     isLoading.value = false
   }
 }
+
+const formatDate = (value) => value
+    ? new Date(value).toLocaleDateString('vi-VN')
+    : 'Chưa cập nhật'
 
 const copyHash = async (hash) => {
   if (!hash) return

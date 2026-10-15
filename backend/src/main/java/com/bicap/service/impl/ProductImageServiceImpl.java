@@ -2,6 +2,7 @@ package com.bicap.service.impl;
 
 import com.bicap.dto.request.productImage.ReorderProductImageRequest;
 import com.bicap.dto.response.productImage.ProductImageResponse;
+import com.bicap.config.FileStorageProperties;
 import com.bicap.entity.ProductBatch;
 import com.bicap.entity.ProductImage;
 import com.bicap.exception.ResourceNotFoundException;
@@ -36,6 +37,8 @@ public class ProductImageServiceImpl implements ProductImageService {
     private final ProductImageMapper productImageMapper;
 
     private final FileStorageService fileStorageService;
+
+        private final FileStorageProperties storageProperties;
 
     /**
      * Upload images.
@@ -183,10 +186,24 @@ private boolean isStoredImageAvailable(String imageUrl) {
                 return false;
         }
 
-        String relativePath = imageUrl.replaceFirst("^/uploads/", "");
-        Path uploadRoot = Paths.get("uploads").toAbsolutePath().normalize();
-        Path imagePath = uploadRoot.resolve(relativePath).normalize();
-        return imagePath.startsWith(uploadRoot) && Files.isRegularFile(imagePath);
+        String fileName = Paths.get(imageUrl).getFileName().toString();
+        Path productRoot = resolveProductDirectory();
+        Path imagePath = productRoot.resolve(fileName).normalize();
+        return imagePath.startsWith(productRoot) && Files.isRegularFile(imagePath);
+}
+
+private Path resolveProductDirectory() {
+        Path configuredPath = Paths.get(storageProperties.getProductDir());
+        if (configuredPath.isAbsolute() || Files.exists(configuredPath)) {
+                return configuredPath.toAbsolutePath().normalize();
+        }
+
+        Path workspacePath = Paths.get("backend").resolve(configuredPath);
+        if (Files.exists(workspacePath) || Files.exists(workspacePath.getParent())) {
+                return workspacePath.toAbsolutePath().normalize();
+        }
+
+        return configuredPath.toAbsolutePath().normalize();
 }
 private ProductBatch getBatch(Long batchId) {
 

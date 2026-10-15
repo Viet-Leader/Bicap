@@ -14,6 +14,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 
 @RestController
 @RequiredArgsConstructor
@@ -38,6 +40,13 @@ public class ProductBatchController {
                 )
         );
     }
+
+        @GetMapping("/farming-seasons/{seasonId}/batches")
+        public ResponseEntity<List<ProductBatchSummaryResponse>> getBySeason(
+                        @PathVariable Long seasonId
+        ) {
+                return ResponseEntity.ok(productBatchService.getBySeason(seasonId));
+        }
 
     /**
      * Chi tiết Batch.

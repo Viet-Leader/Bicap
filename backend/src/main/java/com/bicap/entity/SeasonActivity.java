@@ -35,6 +35,9 @@ public class SeasonActivity {
     @Column(name = "description", columnDefinition = "TEXT")
     private String description;
 
+    @Column(name = "blockchain_tx_hash", length = 255)
+    private String blockchainTxHash;
+
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;

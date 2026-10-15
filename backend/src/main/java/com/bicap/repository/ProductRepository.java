@@ -5,6 +5,8 @@ import com.bicap.entity.Product;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.EntityGraph;
+import org.springframework.data.jpa.repository.Query;
 
 import java.util.Optional;
 
@@ -17,7 +19,8 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     /**
      * Get all products of a farm.
      */
-    Page<Product> findByFarmFarmId(
+        @EntityGraph(attributePaths = {"farm", "crop", "productBatches"})
+        Page<Product> findByFarmFarmId(
             Long farmId,
             Pageable pageable
     );
@@ -25,7 +28,8 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     /**
      * Search products of a farm.
      */
-    Page<Product> findByFarmFarmIdAndProductNameContainingIgnoreCase(
+        @EntityGraph(attributePaths = {"farm", "crop", "productBatches"})
+        Page<Product> findByFarmFarmIdAndProductNameContainingIgnoreCase(
             Long farmId,
             String keyword,
             Pageable pageable
@@ -63,7 +67,8 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     /**
      * Get all active products.
      */
-    Page<Product> findByStatus(
+        @EntityGraph(attributePaths = {"farm", "crop"})
+        Page<Product> findByStatus(
             AccountStatus status,
             Pageable pageable
     );
@@ -71,7 +76,8 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     /**
      * Search active products.
      */
-    Page<Product> findByStatusAndProductNameContainingIgnoreCase(
+        @EntityGraph(attributePaths = {"farm", "crop"})
+        Page<Product> findByStatusAndProductNameContainingIgnoreCase(
             AccountStatus status,
             String keyword,
             Pageable pageable
@@ -80,7 +86,8 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     /**
      * Filter active products by crop.
      */
-    Page<Product> findByStatusAndCropCropId(
+        @EntityGraph(attributePaths = {"farm", "crop"})
+        Page<Product> findByStatusAndCropCropId(
             AccountStatus status,
             Long cropId,
             Pageable pageable
@@ -89,7 +96,8 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     /**
      * Search active products by crop.
      */
-    Page<Product> findByStatusAndCropCropIdAndProductNameContainingIgnoreCase(
+        @EntityGraph(attributePaths = {"farm", "crop"})
+        Page<Product> findByStatusAndCropCropIdAndProductNameContainingIgnoreCase(
             AccountStatus status,
             Long cropId,
             String keyword,
@@ -102,6 +110,44 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     Optional<Product> findByProductIdAndStatus(
             Long productId,
             AccountStatus status
+    );
+
+                @EntityGraph(attributePaths = {"farm", "crop"})
+                @Query("""
+                                                select p
+                                                from Product p
+                                                where p.status = ?1
+                                                        and exists (
+                                                                        select b.batchId
+                                                                        from ProductBatch b
+                                                                        where b.product = p
+                                                                                and b.status = com.bicap.common.enums.ProductBatchStatus.AVAILABLE
+                                                                                and b.remainingQuantity > 0
+                                                        )
+                                                """)
+    Page<Product> findPublicProductsWithAvailableBatch(
+            AccountStatus productStatus,
+            Pageable pageable
+    );
+
+                @EntityGraph(attributePaths = {"farm", "crop"})
+                @Query("""
+                                                select p
+                                                from Product p
+                                                where p.status = ?1
+                                                        and lower(p.productName) like lower(concat('%', ?2, '%'))
+                                                        and exists (
+                                                                        select b.batchId
+                                                                        from ProductBatch b
+                                                                        where b.product = p
+                                                                                and b.status = com.bicap.common.enums.ProductBatchStatus.AVAILABLE
+                                                                                and b.remainingQuantity > 0
+                                                        )
+                                                """)
+    Page<Product> searchPublicProductsWithAvailableBatch(
+            AccountStatus productStatus,
+            String keyword,
+            Pageable pageable
     );
 
     /**

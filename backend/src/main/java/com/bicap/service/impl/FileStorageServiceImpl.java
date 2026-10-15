@@ -38,7 +38,7 @@ public class FileStorageServiceImpl implements FileStorageService {
 
         try {
 
-            Path uploadPath = Paths.get(storageProperties.getProductDir());
+            Path uploadPath = resolveProductDirectory();
 
             if (Files.notExists(uploadPath)) {
                 Files.createDirectories(uploadPath);
@@ -76,10 +76,7 @@ public class FileStorageServiceImpl implements FileStorageService {
 
             String fileName = Paths.get(imageUrl).getFileName().toString();
 
-            Path filePath = Paths.get(
-                    storageProperties.getProductDir(),
-                    fileName
-            );
+                Path filePath = resolveProductDirectory().resolve(fileName).normalize();
 
             Files.deleteIfExists(filePath);
 
@@ -89,6 +86,20 @@ public class FileStorageServiceImpl implements FileStorageService {
 
         }
 
+    }
+
+    private Path resolveProductDirectory() {
+        Path configuredPath = Paths.get(storageProperties.getProductDir());
+        if (configuredPath.isAbsolute() || Files.exists(configuredPath)) {
+            return configuredPath.toAbsolutePath().normalize();
+        }
+
+        Path workspacePath = Paths.get("backend").resolve(configuredPath);
+        if (Files.exists(workspacePath) || Files.exists(workspacePath.getParent())) {
+            return workspacePath.toAbsolutePath().normalize();
+        }
+
+        return configuredPath.toAbsolutePath().normalize();
     }
 
     /**

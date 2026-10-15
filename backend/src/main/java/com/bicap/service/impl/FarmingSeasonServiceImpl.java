@@ -19,9 +19,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class FarmingSeasonServiceImpl implements FarmingSeasonService {
 
     private final FarmingSeasonRepository farmingSeasonRepository;
@@ -239,7 +241,8 @@ public FarmingSeasonDetailResponse finish(
 
     if (season.getStatus() != FarmingSeasonStatus.HARVESTING) {
         throw new BadRequestException(
-                "Only harvesting season can be finished."
+                "Only harvesting season can be finished. Current status: "
+                        + season.getStatus()
         );
     }
 
