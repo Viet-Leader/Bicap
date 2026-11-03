@@ -232,6 +232,7 @@ public OrderResponse checkout() {
     // BR07
     // ==========================================================
 
+        retailer.setCart(null);
     BigDecimal totalAmount = calculateTotal(items);
 
     // ==========================================================

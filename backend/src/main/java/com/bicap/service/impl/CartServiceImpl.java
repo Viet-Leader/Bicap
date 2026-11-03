@@ -58,19 +58,28 @@ public class CartServiceImpl implements CartService {
 private Cart getOrCreateCart(Retailer retailer,
                              Farm farm) {
 
-    return cartRepository
-            .findByRetailer(retailer)
-            .orElseGet(() -> {
+        Optional<Cart> existingCart = cartRepository.findByRetailer(retailer);
+        if (existingCart.isPresent()) {
+                Cart cart = existingCart.get();
+                retailer.setCart(cart);
+                return cart;
+        }
 
-                Cart cart = Cart.builder()
+        Cart cart = Cart.builder()
                         .retailer(retailer)
                         .farm(farm)
                         .build();
 
-                return cartRepository.save(cart);
+        cart = cartRepository.save(cart);
+        retailer.setCart(cart);
+        return cart;
 
-            });
+}
 
+
+private void deleteCart(Retailer retailer, Cart cart) {
+        retailer.setCart(null);
+        cartRepository.delete(cart);
 }
 private ProductBatch validateBatch(Long batchId) {
 
@@ -340,7 +349,7 @@ public void removeItem(Long cartItemId) {
 
     if (cart.getCartItems().isEmpty()) {
 
-        cartRepository.delete(cart);
+                deleteCart(retailer, cart);
 
     }
 
@@ -357,7 +366,7 @@ public void clearCart() {
                             "Cart not found."
                     ));
 
-    cartRepository.delete(cart);
+        deleteCart(retailer, cart);
 
 }
 }
