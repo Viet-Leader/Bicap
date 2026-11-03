@@ -19,9 +19,14 @@ public class BlockchainTransactionMapper {
                 .entityType(transaction.getEntityType())
                 .entityId(transaction.getEntityId())
                 .txHash(transaction.getTxHash())
+                .dataHash(transaction.getDataHash())
+                .blockNumber(transaction.getBlockNumber())
+                .gasUsed(transaction.getGasUsed())
                 .status(transaction.getStatus())
                 .errorMessage(transaction.getErrorMessage())
                 .createdAt(transaction.getCreatedAt())
+                .confirmedAt(transaction.getConfirmedAt())
+                .updatedAt(transaction.getUpdatedAt())
                 .build();
     }
 

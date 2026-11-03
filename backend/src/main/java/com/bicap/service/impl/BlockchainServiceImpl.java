@@ -1,27 +1,33 @@
 package com.bicap.service.impl;
 
 import com.bicap.blockchain.BlockchainClient;
+import com.bicap.blockchain.BlockchainRecord;
+import com.bicap.blockchain.BlockchainSubmission;
+import com.bicap.common.enums.BlockchainVerificationStatus;
 import com.bicap.common.enums.BlockchainTransactionStatus;
 import com.bicap.dto.blockchain.ProductBatchBlockchainPayload;
 import com.bicap.dto.response.blockchain.BlockchainTransactionResponse;
+import com.bicap.dto.response.blockchain.BlockchainVerificationResponse;
 import com.bicap.entity.BlockchainTransaction;
+import com.bicap.entity.ProductBatch;
+import com.bicap.entity.SeasonActivity;
+import com.bicap.exception.BlockchainUnavailableException;
 import com.bicap.exception.ResourceNotFoundException;
 import com.bicap.mapper.BlockchainTransactionMapper;
 import com.bicap.repository.BlockchainTransactionRepository;
+import com.bicap.repository.ProductBatchRepository;
+import com.bicap.repository.SeasonActivityRepository;
+import com.bicap.service.BlockchainDataHasher;
+import com.bicap.service.BlockchainTransactionPersistenceService;
 import com.bicap.service.BlockchainService;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
-import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 
 @Service
 @RequiredArgsConstructor
-@Transactional
 public class BlockchainServiceImpl implements BlockchainService {
 
     private static final String ENTITY_TYPE_PRODUCT_BATCH =
@@ -32,7 +38,13 @@ public class BlockchainServiceImpl implements BlockchainService {
 
     private final BlockchainClient blockchainClient;
 
-    private final ObjectMapper objectMapper;
+    private final ProductBatchRepository productBatchRepository;
+
+    private final SeasonActivityRepository seasonActivityRepository;
+
+    private final BlockchainDataHasher blockchainDataHasher;
+
+    private final BlockchainTransactionPersistenceService transactionPersistenceService;
 
     private final BlockchainTransactionMapper
             blockchainTransactionMapper;
@@ -47,49 +59,31 @@ public class BlockchainServiceImpl implements BlockchainService {
         // Serialize payload -> JSON
         // ==========================================================
 
-        String data = convertToJson(payload);
+        String hash = blockchainDataHasher.hashProductBatch(payload);
 
-        // ==========================================================
-        // P2.4
-        // Generate SHA-256 hash
-        // ==========================================================
-
-        String hash = generateSha256(data);
+        var latest = blockchainTransactionRepository
+                .findFirstByEntityTypeAndEntityIdOrderByCreatedAtDesc(
+                        ENTITY_TYPE_PRODUCT_BATCH, payload.getBatchId());
+        if (latest.isPresent() && latest.get().getStatus() != BlockchainTransactionStatus.FAILED) {
+            return blockchainTransactionMapper.toResponse(latest.get());
+        }
 
         // ==========================================================
         // P2.6 + P2.7
         // Tạo transaction với trạng thái PENDING
         // ==========================================================
 
-        BlockchainTransaction transaction =
-                BlockchainTransaction.builder()
-                        .entityType(ENTITY_TYPE_PRODUCT_BATCH)
-                        .entityId(payload.getBatchId())
-                        .status(BlockchainTransactionStatus.PENDING)
-                        .build();
-
-        transaction =
-                blockchainTransactionRepository.save(transaction);
+        BlockchainTransaction transaction = transactionPersistenceService
+                .createPending(ENTITY_TYPE_PRODUCT_BATCH, payload.getBatchId(), hash);
 
         // ==========================================================
         // P2.5
         // Gửi hash lên Blockchain
         // ==========================================================
 
+        final BlockchainSubmission submission;
         try {
-
-            String txHash =
-                    blockchainClient.submitTransaction(
-                                                        payload.getBatchId(),
-                                                        hash
-                                                );
-
-            transaction.setTxHash(txHash);
-
-            transaction.setStatus(
-                    BlockchainTransactionStatus.SUCCESS
-            );
-
+            submission = blockchainClient.submitTransaction(payload.getBatchId(), hash);
         } catch (Exception e) {
 
             // ======================================================
@@ -97,22 +91,20 @@ public class BlockchainServiceImpl implements BlockchainService {
             // Blockchain thất bại
             // ======================================================
 
-            transaction.setStatus(
-                    BlockchainTransactionStatus.FAILED
-            );
-
-            transaction.setErrorMessage(
-                    e.getMessage()
-            );
+            transaction = transactionPersistenceService.markFailed(
+                    transaction.getTransactionId(), e.getMessage());
+            return blockchainTransactionMapper.toResponse(transaction);
         }
+
+        // If this update fails, leave the independently committed PENDING record
+        // for reconciliation; never mislabel a confirmed chain write as FAILED.
+        transaction = transactionPersistenceService
+                .markSuccess(transaction.getTransactionId(), submission);
 
         // ==========================================================
         // P2.6
         // Lưu kết quả transaction
         // ==========================================================
-
-        transaction =
-                blockchainTransactionRepository.save(transaction);
 
         return blockchainTransactionMapper.toResponse(transaction);
     }
@@ -137,68 +129,111 @@ public class BlockchainServiceImpl implements BlockchainService {
         return blockchainTransactionMapper.toResponse(transaction);
     }
 
-    // ==========================================================
-    // P2.3
-    // Serialize ProductBatch payload -> JSON
-    // ==========================================================
+    @Override
+    public BlockchainTransactionResponse recordSeasonActivity(Long activityId, String dataHash) {
+        var latest = blockchainTransactionRepository
+                .findFirstByEntityTypeAndEntityIdOrderByCreatedAtDesc("SEASON_ACTIVITY", activityId);
+        if (latest.isPresent() && latest.get().getStatus() != BlockchainTransactionStatus.FAILED) {
+            return blockchainTransactionMapper.toResponse(latest.get());
+        }
 
-    private String convertToJson(
-            ProductBatchBlockchainPayload payload
-    ) {
-
+        BlockchainTransaction pending = transactionPersistenceService
+                .createPending("SEASON_ACTIVITY", activityId, dataHash);
         try {
-
-            return objectMapper.writeValueAsString(payload);
-
-        } catch (JsonProcessingException e) {
-
-            throw new IllegalStateException(
-                    "Cannot serialize blockchain payload.",
-                    e
+            BlockchainSubmission submission = blockchainClient.submitSeasonActivity(activityId, dataHash);
+            return blockchainTransactionMapper.toResponse(
+                    transactionPersistenceService.markSuccess(pending.getTransactionId(), submission)
+            );
+        } catch (Exception e) {
+            return blockchainTransactionMapper.toResponse(
+                    transactionPersistenceService.markFailed(pending.getTransactionId(), e.getMessage())
             );
         }
     }
 
-    // ==========================================================
-    // P2.4
-    // Generate SHA-256
-    // ==========================================================
+    @Override
+    public BlockchainVerificationResponse verifyProductBatch(Long batchId) {
+        ProductBatch batch = productBatchRepository.findByBatchId(batchId)
+                .orElseThrow(() -> new ResourceNotFoundException("Product batch not found."));
 
-    private String generateSha256(String data) {
+        String databaseHash = blockchainDataHasher.hashProductBatch(
+                blockchainDataHasher.productBatchPayload(batch)
+        );
+        return verify(
+                ENTITY_TYPE_PRODUCT_BATCH,
+                batchId,
+                databaseHash,
+                () -> blockchainClient.getProductBatch(batchId)
+        );
+    }
 
+    @Override
+    public Page<BlockchainTransactionResponse> getTransactionHistory(Pageable pageable) {
+        return blockchainTransactionRepository.findAllByOrderByCreatedAtDesc(pageable)
+                .map(blockchainTransactionMapper::toResponse);
+    }
+
+    @Override
+    public BlockchainVerificationResponse verifySeasonActivity(Long activityId) {
+        SeasonActivity activity = seasonActivityRepository.findByActivityId(activityId)
+                .orElseThrow(() -> new ResourceNotFoundException("Season activity not found."));
+
+        String databaseHash = blockchainDataHasher.hashSeasonActivity(activity);
+        return verify(
+                "SEASON_ACTIVITY",
+                activityId,
+                databaseHash,
+                () -> blockchainClient.getSeasonActivity(activityId)
+        );
+    }
+
+    private BlockchainVerificationResponse verify(
+            String entityType,
+            Long entityId,
+            String databaseHash,
+            BlockchainRecordReader recordReader
+    ) {
+        final BlockchainRecord blockchainRecord;
         try {
-
-            MessageDigest digest =
-                    MessageDigest.getInstance("SHA-256");
-
-            byte[] hash =
-                    digest.digest(
-                            data.getBytes(StandardCharsets.UTF_8)
-                    );
-
-            StringBuilder hexString =
-                    new StringBuilder();
-
-            for (byte b : hash) {
-
-                String hex =
-                        Integer.toHexString(0xff & b);
-
-                if (hex.length() == 1) {
-                    hexString.append('0');
-                }
-
-                hexString.append(hex);
-            }
-
-            return hexString.toString();
-
-        } catch (NoSuchAlgorithmException e) {
-
-            throw new IllegalStateException(
-                    "SHA-256 algorithm is not available.",
-                    e
+            blockchainRecord = recordReader.read();
+        } catch (Exception e) {
+            throw new BlockchainUnavailableException(
+                    "Unable to read the blockchain record. Please try again later.", e
             );
         }
+
+        if (!blockchainRecord.isRecorded()) {
+            return BlockchainVerificationResponse.builder()
+                    .entityType(entityType)
+                    .entityId(entityId)
+                    .databaseDataHash(databaseHash)
+                    .status(BlockchainVerificationStatus.NOT_RECORDED)
+                    .message("This record has not been recorded on blockchain.")
+                    .build();
+        }
+
+        String blockchainHash = blockchainRecord.dataHash();
+        boolean matches = databaseHash.equalsIgnoreCase(stripHexPrefix(blockchainHash));
+        return BlockchainVerificationResponse.builder()
+                .entityType(entityType)
+                .entityId(entityId)
+                .databaseDataHash(databaseHash)
+                .blockchainDataHash(blockchainHash)
+                .status(matches
+                        ? BlockchainVerificationStatus.VERIFIED
+                        : BlockchainVerificationStatus.MISMATCH)
+                .message(matches
+                        ? "Database data matches the hash recorded on blockchain."
+                        : "Database data does not match the hash recorded on blockchain.")
+                .build();
+    }
+
+    private String stripHexPrefix(String value) {
+        return value != null && value.startsWith("0x") ? value.substring(2) : value;
+    }
+
+    @FunctionalInterface
+    private interface BlockchainRecordReader {
+        BlockchainRecord read();
     }
 }

@@ -1,11 +1,13 @@
 package com.bicap.service.impl;
 
-import com.bicap.blockchain.BlockchainClient;
+import com.bicap.common.enums.BlockchainTransactionStatus;
 import com.bicap.common.enums.FarmingSeasonStatus;
 import com.bicap.dto.request.seasonActivity.CreateSeasonActivityRequest;
 import com.bicap.dto.request.seasonActivity.UpdateSeasonActivityRequest;
 import com.bicap.dto.response.seasonActivity.SeasonActivityDetailResponse;
 import com.bicap.dto.response.seasonActivity.SeasonActivitySummaryResponse;
+import com.bicap.dto.response.blockchain.BlockchainVerificationResponse;
+import com.bicap.dto.response.blockchain.BlockchainTransactionResponse;
 import com.bicap.entity.ActivityType;
 import com.bicap.entity.Farm;
 import com.bicap.entity.FarmingSeason;
@@ -18,15 +20,12 @@ import com.bicap.repository.FarmRepository;
 import com.bicap.repository.FarmingSeasonRepository;
 import com.bicap.repository.SeasonActivityRepository;
 import com.bicap.security.SecurityUtils;
+import com.bicap.service.BlockchainDataHasher;
+import com.bicap.service.BlockchainService;
 import com.bicap.service.SeasonActivityService;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.List;
 
 import org.springframework.data.domain.Page;
@@ -51,9 +50,9 @@ public class SeasonActivityServiceImpl
 
     private final SeasonActivityMapper seasonActivityMapper;
 
-    private final BlockchainClient blockchainClient;
+    private final BlockchainDataHasher blockchainDataHasher;
 
-    private final ObjectMapper objectMapper;
+    private final BlockchainService blockchainService;
 
     /**
      * Lấy Farm hiện tại.
@@ -131,25 +130,6 @@ public class SeasonActivityServiceImpl
                         new ResourceNotFoundException(
                                 "Activity type not found."
                         ));
-    }
-
-    /**
-     * Tạo SHA-256 hash từ chuỗi JSON.
-     */
-    private String generateSha256(String data) {
-        try {
-            MessageDigest digest = MessageDigest.getInstance("SHA-256");
-            byte[] hash = digest.digest(data.getBytes(StandardCharsets.UTF_8));
-            StringBuilder hexString = new StringBuilder();
-            for (byte b : hash) {
-                String hex = Integer.toHexString(0xff & b);
-                if (hex.length() == 1) hexString.append('0');
-                hexString.append(hex);
-            }
-            return hexString.toString();
-        } catch (NoSuchAlgorithmException e) {
-            throw new IllegalStateException("SHA-256 algorithm not available.", e);
-        }
     }
 
     @Override
@@ -245,37 +225,25 @@ public class SeasonActivityServiceImpl
         // Serialize payload -> SHA-256 -> gửi lên contract
         // ============================================================
         try {
-            String payload = objectMapper.writeValueAsString(java.util.Map.of(
-                    "activityId", activity.getActivityId(),
-                    "seasonId", season.getSeasonId(),
-                    "seasonName", season.getSeasonName(),
-                    "activityType", activityType.getActivityName(),
-                    "activityTime", activity.getActivityTime().toString(),
-                    "description", activity.getDescription()
-            ));
+            String dataHash = blockchainDataHasher.hashSeasonActivity(activity);
 
-            String dataHash = generateSha256(payload);
-
-            String txHash = blockchainClient.submitSeasonActivity(
-                    activity.getActivityId(),
-                    dataHash
-            );
+            BlockchainTransactionResponse blockchainTransaction =
+                    blockchainService.recordSeasonActivity(activity.getActivityId(), dataHash);
 
             // ============================================================
             // Bước 3: Cập nhật txHash vào DB record
             // ============================================================
-            activity.setBlockchainTxHash(txHash);
+            if (blockchainTransaction.getStatus() == BlockchainTransactionStatus.SUCCESS) {
+                activity.setBlockchainTxHash(blockchainTransaction.getTxHash());
+            }
             activity = seasonActivityRepository.save(activity);
 
             log.info(
                     "[SeasonActivity] Activity #{} recorded on blockchain. TxHash: {}",
                     activity.getActivityId(),
-                    txHash
+                    blockchainTransaction.getTxHash()
             );
 
-        } catch (JsonProcessingException e) {
-            // Lỗi serialize payload — không nên xảy ra, nhưng vẫn throw để rollback
-            throw new IllegalStateException("Failed to serialize activity payload.", e);
         } catch (Exception e) {
             // Blockchain fail — throw để @Transactional rollback DB record
             log.error(
@@ -283,10 +251,7 @@ public class SeasonActivityServiceImpl
                     activity.getActivityId(),
                     e.getMessage()
             );
-            throw new IllegalStateException(
-                    "Activity saved but blockchain recording failed: " + e.getMessage(),
-                    e
-            );
+            // Keep the business record. The ledger entry is persisted as FAILED independently.
         }
 
         return seasonActivityMapper.toDetail(activity);
@@ -328,5 +293,12 @@ public class SeasonActivityServiceImpl
         SeasonActivity activity = getMyActivity(activityId);
 
         seasonActivityRepository.delete(activity);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public BlockchainVerificationResponse verifyBlockchainRecord(Long activityId) {
+        getMyActivity(activityId);
+        return blockchainService.verifySeasonActivity(activityId);
     }
 }

@@ -20,9 +20,19 @@ public class BlockchainTransactionResponse {
 
     private String txHash;
 
+    private String dataHash;
+
+    private Long blockNumber;
+
+    private Long gasUsed;
+
     private BlockchainTransactionStatus status;
 
     private String errorMessage;
 
     private LocalDateTime createdAt;
+
+    private LocalDateTime confirmedAt;
+
+    private LocalDateTime updatedAt;
 }
