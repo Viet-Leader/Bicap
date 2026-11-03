@@ -67,6 +67,7 @@ public class SecurityConfig {
         private static final String API_NOTIFICATIONS = "/api/notifications/**";
         private static final String API_PRODUCT_BATCH_BLOCKCHAIN =
         "/api/product-batches/*/blockchain";
+        private static final String API_BLOCKCHAIN = "/api/blockchain/**";
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -308,6 +309,8 @@ public class SecurityConfig {
                         API_PRODUCT_BATCH_BLOCKCHAIN
                 )
                 .hasRole(RoleName.FARM.name())
+                .requestMatchers(HttpMethod.GET, API_BLOCKCHAIN)
+                .hasRole(RoleName.ADMIN.name())
                 // =========================
                 // OTHERS
                 // =========================

@@ -11,10 +11,13 @@ import org.web3j.protocol.http.HttpService;
 import org.web3j.tx.RawTransactionManager;
 import org.web3j.tx.TransactionManager;
 import org.web3j.protocol.core.methods.response.TransactionReceipt;
+import org.web3j.protocol.core.DefaultBlockParameterName;
+import org.web3j.protocol.core.methods.request.Transaction;
 import org.web3j.tx.response.PollingTransactionReceiptProcessor;
 import org.web3j.utils.Numeric;
 
 import java.math.BigInteger;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -79,7 +82,7 @@ public class BlockchainClientImpl implements BlockchainClient {
     }
 
     @Override
-    public String submitTransaction(
+    public BlockchainSubmission submitTransaction(
             Long batchId,
             String dataHash
     ) {
@@ -91,7 +94,7 @@ public class BlockchainClientImpl implements BlockchainClient {
     }
 
     @Override
-    public String submitSeasonActivity(
+    public BlockchainSubmission submitSeasonActivity(
             Long activityId,
             String dataHash
     ) {
@@ -102,11 +105,21 @@ public class BlockchainClientImpl implements BlockchainClient {
         return sendContractCall("recordSeasonActivity", activityId, dataHash);
     }
 
+    @Override
+    public BlockchainRecord getProductBatch(Long batchId) {
+        return readContractRecord("getProductBatch", batchId);
+    }
+
+    @Override
+    public BlockchainRecord getSeasonActivity(Long activityId) {
+        return readContractRecord("getSeasonActivity", activityId);
+    }
+
     // ============================================================
     // Shared: encode ABI & send transaction to the contract
     // ============================================================
 
-        private synchronized String sendContractCall(
+        private synchronized BlockchainSubmission sendContractCall(
             String functionName,
             Long entityId,
             String dataHash
@@ -180,12 +193,73 @@ public class BlockchainClientImpl implements BlockchainClient {
                     response.getTransactionHash()
             );
 
-            return response.getTransactionHash();
+            return new BlockchainSubmission(
+                    response.getTransactionHash(),
+                    receipt.getBlockNumber(),
+                    receipt.getGasUsed(),
+                    LocalDateTime.now(java.time.Clock.systemUTC())
+            );
 
         } catch (Exception e) {
             throw new IllegalStateException(
                     "Failed to submit transaction to blockchain: " + functionName
                             + " (" + e.getMessage() + ")",
+                    e
+            );
+        }
+    }
+
+    private BlockchainRecord readContractRecord(String functionName, Long entityId) {
+        if (entityId == null || entityId <= 0) {
+            throw new IllegalArgumentException("Invalid entity ID.");
+        }
+
+        org.web3j.abi.datatypes.Function function =
+                new org.web3j.abi.datatypes.Function(
+                        functionName,
+                        List.of(new org.web3j.abi.datatypes.generated.Uint256(
+                                BigInteger.valueOf(entityId)
+                        )),
+                        List.<org.web3j.abi.TypeReference<?>>of(
+                                new org.web3j.abi.TypeReference<org.web3j.abi.datatypes.generated.Bytes32>() {},
+                                new org.web3j.abi.TypeReference<org.web3j.abi.datatypes.generated.Uint256>() {},
+                                new org.web3j.abi.TypeReference<org.web3j.abi.datatypes.Address>() {}
+                        )
+                );
+
+        try {
+            String encodedFunction = org.web3j.abi.FunctionEncoder.encode(function);
+            var response = web3j.ethCall(
+                    Transaction.createEthCallTransaction(null, contractAddress, encodedFunction),
+                    DefaultBlockParameterName.LATEST
+            ).send();
+
+            if (response.hasError()) {
+                var error = response.getError();
+                throw new IllegalStateException(
+                        "RPC error (code " + error.getCode() + "): " + error.getMessage()
+                );
+            }
+
+            List<org.web3j.abi.datatypes.Type> values =
+                    org.web3j.abi.FunctionReturnDecoder.decode(response.getValue(), function.getOutputParameters());
+
+            if (values.size() != 3) {
+                throw new IllegalStateException(
+                        "Unexpected response while reading " + functionName
+                );
+            }
+
+            byte[] rawHash = ((org.web3j.abi.datatypes.generated.Bytes32) values.get(0)).getValue();
+            String dataHash = Numeric.toHexString(rawHash);
+            BigInteger recordedAt =
+                    ((org.web3j.abi.datatypes.generated.Uint256) values.get(1)).getValue();
+            String recorder = ((org.web3j.abi.datatypes.Address) values.get(2)).getValue();
+
+            return new BlockchainRecord(dataHash, recordedAt, recorder);
+        } catch (Exception e) {
+            throw new IllegalStateException(
+                    "Failed to read blockchain record: " + functionName + " (" + e.getMessage() + ")",
                     e
             );
         }

@@ -9,7 +9,7 @@ import com.bicap.entity.BlockchainTransaction;
 import com.bicap.mapper.BlockchainTransactionMapper;
 import com.bicap.repository.BlockchainTransactionRepository;
 import com.bicap.service.impl.BlockchainServiceImpl;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.bicap.service.BlockchainDataHasher;
 import java.time.LocalDateTime;
 
 import org.junit.jupiter.api.Test;
@@ -23,6 +23,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -40,7 +41,10 @@ class BlockchainServiceTest {
     private BlockchainClient blockchainClient;
 
     @Mock
-    private ObjectMapper objectMapper;
+    private BlockchainDataHasher blockchainDataHasher;
+
+    @Mock
+    private BlockchainTransactionPersistenceService transactionPersistenceService;
 
     @Mock
     private BlockchainTransactionMapper blockchainTransactionMapper;
@@ -135,8 +139,8 @@ class BlockchainServiceTest {
                 }
                 """;
 
-        when(objectMapper.writeValueAsString(payload))
-                .thenReturn(json);
+        when(blockchainDataHasher.hashProductBatch(payload))
+                .thenReturn("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
 
         BlockchainTransaction transaction =
                 BlockchainTransaction.builder()
@@ -148,18 +152,20 @@ class BlockchainServiceTest {
                         )
                         .build();
 
-        when(
-                blockchainTransactionRepository.save(
-                        any(BlockchainTransaction.class)
-                )
-        ).thenReturn(transaction);
+        when(blockchainTransactionRepository
+                .findFirstByEntityTypeAndEntityIdOrderByCreatedAtDesc(anyString(), anyLong()))
+                .thenReturn(Optional.empty());
+        when(transactionPersistenceService.createPending(anyString(), anyLong(), anyString()))
+                .thenReturn(transaction);
+        when(transactionPersistenceService.markSuccess(anyLong(), any()))
+                .thenReturn(transaction);
 
         when(
         blockchainClient.submitTransaction(
                 anyLong(),
                 anyString()
         )
-).thenReturn("0xabc123");
+).thenReturn(new com.bicap.blockchain.BlockchainSubmission("0xabc123", null, null, null));
 
         BlockchainTransactionResponse response =
                 BlockchainTransactionResponse.builder()
@@ -212,11 +218,11 @@ class BlockchainServiceTest {
         );
 
         // ======================================================
-        // Verify ObjectMapper
+        // Verify canonical hash component
         // ======================================================
 
-        verify(objectMapper)
-                .writeValueAsString(payload);
+        verify(blockchainDataHasher)
+                .hashProductBatch(payload);
 
         // ======================================================
         // Verify BlockchainClient
@@ -262,12 +268,9 @@ class BlockchainServiceTest {
         // Verify Repository
         // ======================================================
 
-        verify(
-                blockchainTransactionRepository,
-                times(2)
-        ).save(
-                any(BlockchainTransaction.class)
-        );
+        verify(transactionPersistenceService).createPending(
+                eq("PRODUCT_BATCH"), eq(15L), anyString());
+        verify(transactionPersistenceService).markSuccess(eq(1L), any());
 
         // ======================================================
         // Verify Mapper
@@ -350,12 +353,12 @@ class BlockchainServiceTest {
                 """;
 
         when(
-                objectMapper.writeValueAsString(payload1)
-        ).thenReturn(json1);
+                blockchainDataHasher.hashProductBatch(payload1)
+        ).thenReturn("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
 
         when(
-                objectMapper.writeValueAsString(payload2)
-        ).thenReturn(json2);
+                blockchainDataHasher.hashProductBatch(payload2)
+        ).thenReturn("bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb");
 
         BlockchainTransaction transaction =
                 BlockchainTransaction.builder()
@@ -367,18 +370,20 @@ class BlockchainServiceTest {
                         )
                         .build();
 
-        when(
-                blockchainTransactionRepository.save(
-                        any(BlockchainTransaction.class)
-                )
-        ).thenReturn(transaction);
+        when(blockchainTransactionRepository
+                .findFirstByEntityTypeAndEntityIdOrderByCreatedAtDesc(anyString(), anyLong()))
+                .thenReturn(Optional.empty());
+        when(transactionPersistenceService.createPending(anyString(), anyLong(), anyString()))
+                .thenReturn(transaction);
+        when(transactionPersistenceService.markSuccess(anyLong(), any()))
+                .thenReturn(transaction);
 
         when(
         blockchainClient.submitTransaction(
                 anyLong(),
                 anyString()
         )
-).thenReturn("0xabc");
+).thenReturn(new com.bicap.blockchain.BlockchainSubmission("0xabc", null, null, null));
 
         BlockchainTransactionResponse response =
                 BlockchainTransactionResponse.builder()

@@ -6,6 +6,7 @@ import com.bicap.dto.blockchain.ProductBatchBlockchainPayload;
 import com.bicap.dto.request.productBatch.CreateProductBatchRequest;
 import com.bicap.dto.request.productBatch.UpdateProductBatchRequest;
 import com.bicap.dto.response.blockchain.BlockchainTransactionResponse;
+import com.bicap.dto.response.blockchain.BlockchainVerificationResponse;
 import com.bicap.dto.response.productBatch.ProductBatchDetailResponse;
 import com.bicap.dto.response.productBatch.ProductBatchSummaryResponse;
 import com.bicap.entity.Farm;
@@ -401,6 +402,13 @@ public BlockchainTransactionResponse recordToBlockchain(
     // 6. Ghi lên Blockchain
     return blockchainService.recordProductBatch(payload);
 }
+
+@Override
+public BlockchainVerificationResponse verifyBlockchainRecord(Long batchId) {
+    getMyBatch(batchId);
+    return blockchainService.verifyProductBatch(batchId);
+}
+
 private FarmingActivityBlockchainPayload toActivityPayload(
         SeasonActivity activity
 ) {

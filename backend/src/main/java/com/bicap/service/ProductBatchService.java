@@ -9,6 +9,7 @@ import org.springframework.data.domain.Pageable;
 import com.bicap.dto.request.productBatch.CreateProductBatchRequest;
 import com.bicap.dto.request.productBatch.UpdateProductBatchRequest;
 import com.bicap.dto.response.blockchain.BlockchainTransactionResponse;
+import com.bicap.dto.response.blockchain.BlockchainVerificationResponse;
 import com.bicap.dto.response.productBatch.ProductBatchDetailResponse;
 import com.bicap.dto.response.productBatch.ProductBatchSummaryResponse;
 
@@ -46,4 +47,6 @@ void decreaseRemainingQuantity(Long batchId, BigDecimal quantity);
 void increaseRemainingQuantity(Long batchId, BigDecimal quantity);
 
 BlockchainTransactionResponse recordToBlockchain(Long batchId);
+
+BlockchainVerificationResponse verifyBlockchainRecord(Long batchId);
 }

@@ -4,6 +4,7 @@ import com.bicap.dto.request.seasonActivity.CreateSeasonActivityRequest;
 import com.bicap.dto.request.seasonActivity.UpdateSeasonActivityRequest;
 import com.bicap.dto.response.seasonActivity.SeasonActivityDetailResponse;
 import com.bicap.dto.response.seasonActivity.SeasonActivitySummaryResponse;
+import com.bicap.dto.response.blockchain.BlockchainVerificationResponse;
 import com.bicap.service.SeasonActivityService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -99,5 +100,12 @@ public class SeasonActivityController {
         seasonActivityService.delete(activityId);
 
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/{activityId}/verify")
+    public ResponseEntity<BlockchainVerificationResponse> verifyBlockchainRecord(
+            @PathVariable Long activityId
+    ) {
+        return ResponseEntity.ok(seasonActivityService.verifyBlockchainRecord(activityId));
     }
 }
