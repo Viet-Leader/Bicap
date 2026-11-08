@@ -1,5 +1,6 @@
 package com.bicap.dto.response.blockchain;
 
+import com.bicap.common.enums.BlockchainVerificationStatus;
 import lombok.*;
 
 @Getter
@@ -9,11 +10,15 @@ import lombok.*;
 @Builder
 public class BlockchainVerificationResponse {
 
-    private Long batchId;
+    private String entityType;
 
-    private boolean verified;
+    private Long entityId;
 
-    private String txHash;
+    private String databaseDataHash;
+
+    private String blockchainDataHash;
+
+    private BlockchainVerificationStatus status;
 
     private String message;
 }

@@ -78,12 +78,13 @@ void checkBlockchainAccount() throws Exception {
                 "BICAP Product Batch Test"
         );
 
-        String transactionHash =
+        BlockchainSubmission submission =
                 blockchainClient.submitTransaction(
                         batchId,
                         dataHash
                 );
 
+        String transactionHash = submission.txHash();
         assertNotNull(transactionHash);
 
         assertTrue(
@@ -97,6 +98,11 @@ void checkBlockchainAccount() throws Exception {
                 "Transaction hash must contain 32 bytes"
         );
 
+        BlockchainRecord record = blockchainClient.getProductBatch(batchId);
+        assertEquals("0x" + dataHash, record.dataHash());
+        assertTrue(record.isRecorded());
+        assertNotNull(record.recordedAt());
+
         System.out.println(
                 "Transaction Hash: " + transactionHash
         );
@@ -109,15 +115,20 @@ void checkBlockchainAccount() throws Exception {
                 "BICAP Season Activity Test"
         );
 
-        String transactionHash =
+        BlockchainSubmission submission =
                 blockchainClient.submitSeasonActivity(
                         999L,
                         dataHash
                 );
 
+        String transactionHash = submission.txHash();
         assertNotNull(transactionHash);
         assertTrue(transactionHash.startsWith("0x"));
         assertEquals(66, transactionHash.length());
+
+        BlockchainRecord record = blockchainClient.getSeasonActivity(999L);
+        assertEquals("0x" + dataHash, record.dataHash());
+        assertTrue(record.isRecorded());
     }
 
     @Test

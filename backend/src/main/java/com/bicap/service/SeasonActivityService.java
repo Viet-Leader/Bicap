@@ -4,6 +4,7 @@ import com.bicap.dto.request.seasonActivity.CreateSeasonActivityRequest;
 import com.bicap.dto.request.seasonActivity.UpdateSeasonActivityRequest;
 import com.bicap.dto.response.seasonActivity.SeasonActivityDetailResponse;
 import com.bicap.dto.response.seasonActivity.SeasonActivitySummaryResponse;
+import com.bicap.dto.response.blockchain.BlockchainVerificationResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -59,4 +60,6 @@ public interface SeasonActivityService {
     void delete(
             Long activityId
     );
+
+    BlockchainVerificationResponse verifyBlockchainRecord(Long activityId);
 }

@@ -3,18 +3,22 @@ package com.bicap.blockchain;
 public interface BlockchainClient {
 
     /**
-     * Gửi giao dịch lên blockchain cho ProductBatch.
+     * Sends a ProductBatch hash to the blockchain.
      */
-    String submitTransaction(
-            Long batchId,
-            String dataHash
-    );
+    BlockchainSubmission submitTransaction(Long batchId, String dataHash);
 
     /**
-     * Gửi giao dịch lên blockchain cho SeasonActivity.
+     * Sends a SeasonActivity hash to the blockchain.
      */
-    String submitSeasonActivity(
-            Long activityId,
-            String dataHash
-    );
-}
+    BlockchainSubmission submitSeasonActivity(Long activityId, String dataHash);
+
+    /**
+     * Reads the latest ProductBatch record stored by the smart contract.
+     */
+    BlockchainRecord getProductBatch(Long batchId);
+
+    /**
+     * Reads the latest SeasonActivity record stored by the smart contract.
+     */
+    BlockchainRecord getSeasonActivity(Long activityId);
+}

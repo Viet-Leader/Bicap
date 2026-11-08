@@ -3,6 +3,7 @@ package com.bicap.controller;
 import com.bicap.dto.request.productBatch.CreateProductBatchRequest;
 import com.bicap.dto.request.productBatch.UpdateProductBatchRequest;
 import com.bicap.dto.response.blockchain.BlockchainTransactionResponse;
+import com.bicap.dto.response.blockchain.BlockchainVerificationResponse;
 import com.bicap.dto.response.productBatch.ProductBatchDetailResponse;
 import com.bicap.dto.response.productBatch.ProductBatchSummaryResponse;
 import com.bicap.service.ProductBatchService;
@@ -111,4 +112,11 @@ public ResponseEntity<BlockchainTransactionResponse> recordToBlockchain(
             productBatchService.recordToBlockchain(batchId)
     );
 }
+
+    @GetMapping("/product-batches/{batchId}/verify")
+    public ResponseEntity<BlockchainVerificationResponse> verifyBlockchainRecord(
+            @PathVariable Long batchId
+    ) {
+        return ResponseEntity.ok(productBatchService.verifyBlockchainRecord(batchId));
+    }
 }

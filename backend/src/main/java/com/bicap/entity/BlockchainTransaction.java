@@ -4,6 +4,7 @@ import com.bicap.common.enums.BlockchainTransactionStatus;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
 
@@ -38,6 +39,15 @@ public class BlockchainTransaction {
     @Column(name = "tx_hash", length = 255)
     private String txHash;
 
+    @Column(name = "data_hash", length = 66)
+    private String dataHash;
+
+    @Column(name = "block_number")
+    private Long blockNumber;
+
+    @Column(name = "gas_used")
+    private Long gasUsed;
+
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false, length = 20)
     private BlockchainTransactionStatus status;
@@ -48,4 +58,11 @@ public class BlockchainTransaction {
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
+
+    @Column(name = "confirmed_at")
+    private LocalDateTime confirmedAt;
+
+    @UpdateTimestamp
+    @Column(name = "updated_at", nullable = false)
+    private LocalDateTime updatedAt;
 }

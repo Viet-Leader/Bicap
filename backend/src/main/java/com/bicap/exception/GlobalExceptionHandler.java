@@ -67,6 +67,19 @@ public class GlobalExceptionHandler {
                 ));
     }
 
+    @ExceptionHandler(BlockchainUnavailableException.class)
+    public ResponseEntity<ErrorResponse> handleBlockchainUnavailable(
+            BlockchainUnavailableException ex,
+            HttpServletRequest request) {
+
+        return ResponseEntity.status(HttpStatus.BAD_GATEWAY)
+                .body(buildResponse(
+                        HttpStatus.BAD_GATEWAY,
+                        ex.getMessage(),
+                        request.getRequestURI()
+                ));
+    }
+
     @ExceptionHandler(BadCredentialsException.class)
     public ResponseEntity<ErrorResponse> handleBadCredentials(
             BadCredentialsException ex,
