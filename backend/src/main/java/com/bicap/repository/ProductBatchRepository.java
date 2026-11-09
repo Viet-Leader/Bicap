@@ -5,6 +5,7 @@ import com.bicap.entity.ProductBatch;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.EntityGraph;
 
 import java.util.List;
 import java.util.Optional;
@@ -59,6 +60,13 @@ public interface ProductBatchRepository extends JpaRepository<ProductBatch, Long
 
     long countByProductProductId(Long productId);
 
+    @EntityGraph(attributePaths = {
+            "product",
+            "product.farm",
+            "farmingSeason",
+            "farmingSeason.activities",
+            "farmingSeason.activities.activityType"
+    })
     Optional<ProductBatch> findByBatchId(Long batchId);
 
     Page<ProductBatch> findByProductProductIdAndStatus(

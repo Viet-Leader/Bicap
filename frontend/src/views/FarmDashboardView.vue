@@ -177,7 +177,8 @@
                       <td>
                         <div class="d-flex px-2 py-1">
                           <div>
-                            <img src="/admin-assets/img/small-logos/logo-xd.svg" class="avatar avatar-sm me-3" alt="xd"> 
+                            cd D:\project\Bicap\Bicap\backend
+                            .\mvnw.cmd spring-boot:run                            <img src="/admin-assets/img/small-logos/logo-xd.svg" class="avatar avatar-sm me-3" alt="xd">
                           </div>
                           <div class="d-flex flex-column justify-content-center">
                             <h6 class="mb-0 text-sm">Organic Tomato</h6> <p class="text-xs text-secondary mb-0">Lot #A102</p>
@@ -266,9 +267,9 @@
     </div>
   </div>
 </div>
-          </div>
-        </div>
-      </div>
+</div>
+  </div>
+    </div>
       <footer class="footer py-4  ">
         <div class="container-fluid">
           <div class="row align-items-center justify-content-lg-between">
@@ -299,14 +300,48 @@
           </div>
         </div>
       </footer>
-  
 </template>
 
 <script setup>
-import { onMounted } from 'vue';
+import { onMounted, ref } from 'vue';
+import { useRouter } from 'vue-router';
+import axiosClient from '@/api/axiosClient';
+
+const router = useRouter()
+
+// Blockchain stats
+const blockchainStats = ref({
+  batchSuccess: 0, batchTotal: 0,
+  activitySuccess: 0, activityTotal: 0,
+  pending: 0, failed: 0,
+})
+const blockchainLoading = ref(false)
+const hasFailed = ref(false)
+
+const loadBlockchainStats = async () => {
+  blockchainLoading.value = true
+  try {
+    const { data } = await axiosClient.get('/blockchain/stats/farm')
+    blockchainStats.value = {
+      batchSuccess:    data.productBatchSuccess    || 0,
+      batchTotal:      data.productBatchTotal      || 0,
+      activitySuccess: data.seasonActivitySuccess  || 0,
+      activityTotal:   data.seasonActivityTotal    || 0,
+      pending:         data.pendingCount           || 0,
+      failed:          data.failedCount            || 0,
+    }
+    hasFailed.value = blockchainStats.value.failed > 0
+  } catch {
+    // Giữ nguyên zeros
+  } finally {
+    blockchainLoading.value = false
+  }
+}
+
+const pct = (success, total) => total > 0 ? Math.round(success / total * 100) : 0
 
 onMounted(() => {
-  // Logic from dashboard.ejs
+  loadBlockchainStats()
 });
 </script>
 

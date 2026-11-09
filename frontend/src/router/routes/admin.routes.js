@@ -10,7 +10,10 @@ export default [
       { path: 'farms', name: 'admin-farms', component: () => import('@/views/admin/Farms.vue') },
       { path: 'crops', name: 'admin-crops', component: () => import('@/views/admin/Crops.vue') },
       { path: 'products', name: 'admin-products', component: () => import('@/views/admin/Products.vue') },
+      // Trang Blockchain Transactions thật (đã được xây lại)
       { path: 'transactions', name: 'admin-transactions', component: () => import('@/views/admin/Transactions.vue') },
+      // Trang Duyệt sản phẩm (đổi tên từ Transactions.vue cũ)
+      { path: 'approvals', name: 'admin-approvals', component: () => import('@/views/admin/ProductApprovals.vue') },
       { path: 'orders', name: 'admin-orders', component: () => import('@/views/admin/Orders.vue') },
       { path: 'notifications', name: 'admin-notifications', component: () => import('@/views/admin/Notifications.vue') }
     ]

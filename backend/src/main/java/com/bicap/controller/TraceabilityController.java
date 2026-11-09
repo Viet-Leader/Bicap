@@ -1,6 +1,7 @@
 package com.bicap.controller;
 
 import com.bicap.dto.response.traceability.TraceabilityResponse;
+import com.bicap.dto.response.blockchain.BlockchainVerificationResponse;
 import com.bicap.service.TraceabilityService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -23,6 +24,15 @@ public class TraceabilityController {
 
         return ResponseEntity.ok(
                 traceabilityService.getByBatchId(batchId)
+        );
+    }
+
+    @GetMapping("/batch/{batchId}/verify")
+    public ResponseEntity<BlockchainVerificationResponse> verifyBatch(
+            @PathVariable Long batchId
+    ) {
+        return ResponseEntity.ok(
+                traceabilityService.verifyByBatchId(batchId)
         );
     }
 }

@@ -1,4 +1,4 @@
-﻿<template>
+<template>
   <div class="container-fluid py-4">
 
     <!-- ===================================================== -->
@@ -249,8 +249,9 @@
                 <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Loại sự kiện</th>
                 <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Thời gian</th>
                 <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Mô tả</th>
-                <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Blockchain TxHash</th>
-                <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Xóa</th>
+                <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Blockchain</th>
+                <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">TxHash</th>
+                <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Hành động</th>
               </tr>
             </thead>
             <tbody>
@@ -264,19 +265,36 @@
                   <p class="text-xs mb-0" style="max-width:200px;white-space:normal">{{ evt.description }}</p>
                 </td>
                 <td>
-                  <div v-if="evt.blockchainTxHash" class="d-flex align-items-center">
-                    <span class="material-symbols-rounded text-success me-1" style="font-size:16px">verified</span>
-                    <span
-                      class="text-xs font-monospace text-success"
-                      style="max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"
-                      :title="evt.blockchainTxHash"
-                    >
-                      {{ evt.blockchainTxHash }}
-                    </span>
-                  </div>
-                  <span v-else class="badge badge-sm bg-gradient-secondary">Chưa ghi</span>
+                  <!-- Badge trạng thái blockchain chuẩn (không hard-code) -->
+                  <BlockchainStatusBadge
+                    :status="verifyResults[evt.activityId] || mapActivityBlockchainStatus(evt)"
+                    size="sm"
+                  />
+                  <!-- Thông báo lỗi FAILED -->
+                  <small v-if="mapActivityBlockchainStatus(evt) === 'FAILED'" class="d-block text-danger mt-1">
+                    {{ evt.blockchainError || 'Ghi thất bại' }}
+                  </small>
                 </td>
-                <td class="text-center">
+                <td>
+                  <HashDisplay :hash="evt.blockchainTxHash" :prefix-len="6" :suffix-len="4" />
+                </td>
+                <td class="text-center text-nowrap">
+                  <!-- Nút Verify (nếu đã có TxHash) -->
+                  <VerifyButton
+                    v-if="evt.blockchainTxHash"
+                    :is-verifying="verifyingActivity[evt.activityId]"
+                    label="Verify"
+                    @verify="verifyActivity(evt)"
+                  />
+                  <!-- Nút Thử lại (nếu FAILED) -->
+                  <button
+                    v-else-if="mapActivityBlockchainStatus(evt) === 'FAILED'"
+                    class="btn btn-sm btn-outline-warning mb-0 me-1"
+                    @click="retryRecord(evt)"
+                  >
+                    🔄 Thử lại
+                  </button>
+                  <!-- Nút xóa -->
                   <button
                     class="btn btn-sm btn-outline-danger mb-0"
                     :disabled="deletingEvent[evt.activityId]"
@@ -340,9 +358,12 @@
 </template>
 
 <script setup>
-import { onMounted, reactive, ref } from 'vue';
+import { onMounted, onUnmounted, reactive, ref } from 'vue';
 import axiosClient from '@/api/axiosClient';
 import QRCode from 'qrcode';
+import BlockchainStatusBadge from '@/components/blockchain/BlockchainStatusBadge.vue';
+import HashDisplay from '@/components/blockchain/HashDisplay.vue';
+import VerifyButton from '@/components/blockchain/VerifyButton.vue';
 
 // ================================================================
 // STATE — Mùa vụ
@@ -388,6 +409,59 @@ const eventForm = reactive({
   activityTime: '',
   description: '',
 });
+
+// Trạng thái verify cho từng activity
+const verifyingActivity = reactive({});  // { [activityId]: boolean }
+const verifyResults     = reactive({});  // { [activityId]: string }
+let pollInterval = null;
+
+const mapActivityBlockchainStatus = (evt) => {
+  if (!evt) return 'NOT_RECORDED';
+  if (evt.blockchainStatus) return evt.blockchainStatus;
+  if (evt.blockchainTxHash) return 'SUCCESS';
+  return 'NOT_RECORDED';
+};
+
+const verifyActivity = async (evt) => {
+  verifyingActivity[evt.activityId] = true;
+  verifyResults[evt.activityId] = '';
+  try {
+    const { data } = await axiosClient.get(`/blockchain/verify/season-activity/${evt.activityId}`);
+    verifyResults[evt.activityId] = data?.status || data?.verificationStatus || 'VERIFIED';
+  } catch (e) {
+    verifyResults[evt.activityId] = e.response?.status === 404 ? 'NOT_RECORDED' : 'CONNECTION_ERROR';
+  } finally {
+    verifyingActivity[evt.activityId] = false;
+  }
+};
+
+const retryRecord = async (evt) => {
+  if (!confirm('Thử ghi lại sự kiện này lên Blockchain?')) return;
+  try {
+    const { data } = await axiosClient.post(`/blockchain/record/season-activity/${evt.activityId}`);
+    eventSuccess.value = '✅ Đã gửi yêu cầu ghi lại. Hệ thống sẽ cập nhật trong giây lát.';
+    await loadEvents(selectedSeason.value.seasonId);
+  } catch (e) {
+    eventError.value = e.response?.data?.message || 'Không thể ghi lại sự kiện.';
+  }
+};
+
+// Poll mỗi 5s nếu có event PENDING
+const startPollingIfNeeded = () => {
+  stopPolling();
+  const hasPending = events.value.some(e => mapActivityBlockchainStatus(e) === 'PENDING');
+  if (hasPending && selectedSeason.value) {
+    pollInterval = setInterval(async () => {
+      await loadEvents(selectedSeason.value.seasonId);
+      const stillPending = events.value.some(e => mapActivityBlockchainStatus(e) === 'PENDING');
+      if (!stillPending) stopPolling();
+    }, 5000);
+  }
+};
+
+const stopPolling = () => {
+  if (pollInterval) { clearInterval(pollInterval); pollInterval = null; }
+};
 
 // ================================================================
 // API — Mùa vụ
@@ -550,6 +624,7 @@ const loadEvents = async (seasonId) => {
     eventError.value = err.response?.data?.message || 'Không thể tải danh sách sự kiện.';
   } finally {
     loadingEvents.value = false;
+    startPollingIfNeeded();
   }
 };
 
@@ -651,5 +726,9 @@ const statusClass = (status) => STATUS_CLASSES[status] || 'bg-gradient-secondary
 // ================================================================
 onMounted(async () => {
   await Promise.all([loadSeasons(), loadActivityTypes()]);
+});
+
+onUnmounted(() => {
+  stopPolling();
 });
 </script>

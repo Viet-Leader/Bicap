@@ -161,6 +161,7 @@ public Page<ProductBatchSummaryResponse> getByProduct(
 }
 
 @Override
+@Transactional(readOnly = true)
 public ProductBatchDetailResponse getById(Long batchId) {
 
     ProductBatch batch = getMyBatch(batchId);
@@ -346,6 +347,7 @@ private void updateBatchStatus(ProductBatch batch) {
 
 }
 @Override
+@Transactional
 public BlockchainTransactionResponse recordToBlockchain(
         Long batchId
 ) {
@@ -404,6 +406,7 @@ public BlockchainTransactionResponse recordToBlockchain(
 }
 
 @Override
+@Transactional(readOnly = true)
 public BlockchainVerificationResponse verifyBlockchainRecord(Long batchId) {
     getMyBatch(batchId);
     return blockchainService.verifyProductBatch(batchId);

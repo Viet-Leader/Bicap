@@ -8,6 +8,8 @@ import lombok.Setter;
 
 import java.math.BigDecimal;
 
+import com.bicap.common.enums.BlockchainTransactionStatus;
+
 @Getter
 @Setter
 @Builder
@@ -38,5 +40,9 @@ public class ProductSummaryResponse {
     private String grade;
 
     private BigDecimal unitPrice;
+
+    private String blockchainTxHash;
+
+    private BlockchainTransactionStatus blockchainStatus;
 
 }

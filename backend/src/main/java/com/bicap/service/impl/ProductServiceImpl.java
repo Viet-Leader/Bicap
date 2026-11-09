@@ -5,6 +5,7 @@ import com.bicap.dto.request.product.CreateProductRequest;
 import com.bicap.dto.request.product.UpdateProductRequest;
 import com.bicap.dto.response.product.ProductDetailResponse;
 import com.bicap.dto.response.product.ProductSummaryResponse;
+import com.bicap.entity.BlockchainTransaction;
 import com.bicap.entity.Crop;
 import com.bicap.entity.Farm;
 import com.bicap.entity.Product;
@@ -14,6 +15,7 @@ import com.bicap.mapper.ProductMapper;
 import com.bicap.repository.CropRepository;
 import com.bicap.repository.FarmRepository;
 import com.bicap.repository.ProductRepository;
+import com.bicap.repository.BlockchainTransactionRepository;
 import com.bicap.security.SecurityUtils;
 import com.bicap.service.ProductImageService;
 import com.bicap.service.ProductService;
@@ -36,6 +38,8 @@ public class ProductServiceImpl implements ProductService {
     private final ProductMapper productMapper;
 
     private final ProductImageService productImageService;
+
+        private final BlockchainTransactionRepository blockchainTransactionRepository;
 
     /**
      * Lấy Farm của tài khoản hiện tại.
@@ -97,6 +101,21 @@ public class ProductServiceImpl implements ProductService {
                         product.getProductId()
                 )
         );
+
+        product.getProductBatches().stream()
+                .filter(batch -> batch.getStatus() == com.bicap.common.enums.ProductBatchStatus.AVAILABLE)
+                .filter(batch -> batch.getRemainingQuantity() != null
+                        && batch.getRemainingQuantity().compareTo(java.math.BigDecimal.ZERO) > 0)
+                .max(java.util.Comparator.comparing(
+                        com.bicap.entity.ProductBatch::getCreatedAt,
+                        java.util.Comparator.nullsFirst(java.util.Comparator.naturalOrder())))
+                .ifPresent(batch -> blockchainTransactionRepository
+                        .findFirstByEntityTypeAndEntityIdOrderByCreatedAtDesc(
+                                "PRODUCT_BATCH", batch.getBatchId())
+                        .ifPresent(transaction -> {
+                            response.setBlockchainTxHash(transaction.getTxHash());
+                            response.setBlockchainStatus(transaction.getStatus());
+                        }));
 
         return response;
     }

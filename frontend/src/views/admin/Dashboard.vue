@@ -48,6 +48,79 @@
       </div>
     </div>
 
+    <!-- ===== BLOCKCHAIN STATS ===== -->
+    <div class="card mb-4">
+      <div class="card-header pb-0 d-flex justify-content-between align-items-center">
+        <h6 class="mb-0">⛓️ Thống kê Giao dịch Blockchain</h6>
+        <div class="d-flex align-items-center gap-2">
+          <small class="text-muted" v-if="blockchainLastUpdated">Cập nhật lúc {{ blockchainLastUpdated }}</small>
+          <button class="btn btn-sm btn-outline-dark mb-0" @click="loadBlockchainStats" :disabled="blockchainLoading">
+            <span v-if="blockchainLoading" class="spinner-border spinner-border-sm me-1" style="width:12px;height:12px"></span>
+            <i v-else class="material-symbols-rounded text-sm">refresh</i>
+          </button>
+        </div>
+      </div>
+      <div class="card-body pt-3">
+        <div class="row">
+          <!-- SUCCESS -->
+          <div class="col-md-4 mb-3 mb-md-0">
+            <div
+              class="blockchain-stat-card success-card"
+              role="button"
+              title="Xem giao dịch thành công"
+              @click="goToTransactions('SUCCESS')"
+            >
+              <div class="d-flex justify-content-between align-items-center">
+                <div>
+                  <p class="stat-label">Thành công</p>
+                  <h3 class="stat-value">{{ blockchainLoading ? '...' : blockchainStats.successCount }}</h3>
+                </div>
+                <span class="stat-icon">✅</span>
+              </div>
+              <small class="stat-hint">Click để xem chi tiết →</small>
+            </div>
+          </div>
+          <!-- FAILED -->
+          <div class="col-md-4 mb-3 mb-md-0">
+            <div
+              class="blockchain-stat-card failed-card"
+              role="button"
+              title="Xem giao dịch thất bại"
+              @click="goToTransactions('FAILED')"
+            >
+              <div class="d-flex justify-content-between align-items-center">
+                <div>
+                  <p class="stat-label">Thất bại</p>
+                  <h3 class="stat-value">{{ blockchainLoading ? '...' : blockchainStats.failedCount }}</h3>
+                </div>
+                <span class="stat-icon">❌</span>
+              </div>
+              <small class="stat-hint">Click để xem chi tiết →</small>
+            </div>
+          </div>
+          <!-- PENDING -->
+          <div class="col-md-4">
+            <div
+              class="blockchain-stat-card pending-card"
+              role="button"
+              title="Xem giao dịch đang xử lý"
+              @click="goToTransactions('PENDING')"
+            >
+              <div class="d-flex justify-content-between align-items-center">
+                <div>
+                  <p class="stat-label">Đang xử lý</p>
+                  <h3 class="stat-value">{{ blockchainLoading ? '...' : blockchainStats.pendingCount }}</h3>
+                </div>
+                <span class="stat-icon">⏳</span>
+              </div>
+              <small class="stat-hint">Click để xem chi tiết →</small>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- ===== END BLOCKCHAIN STATS ===== -->
+
     <div class="row">
       <div class="col-12">
         <div class="card my-4">
@@ -158,39 +231,68 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { onMounted, ref } from 'vue'
+import { useRouter } from 'vue-router'
+import axiosClient from '@/api/axiosClient'
 
-const pendingCount = ref(3)
-const totalUsers = ref(150)
-const totalFarms = ref(45)
+const router = useRouter()
 
-const requests = ref([
-  {
-    requestId: 'REQ001',
-    userName: 'Nguyễn Văn A',
-    email: 'nva@gmail.com',
-    requestedRoleName: 'FARM_OWNER',
-    images: ['https://images.unsplash.com/photo-1574323347407-f5e1ad6d020b?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'],
-    createdAt: '22/09/2026'
-  },
-  {
-    requestId: 'REQ002',
-    userName: 'Trần Thị B',
-    email: 'ttb@gmail.com',
-    requestedRoleName: 'SHIPPER',
-    images: [],
-    createdAt: '23/09/2026'
-  }
-])
+const pendingCount = ref(0)
+const totalUsers = ref(0)
+const totalFarms = ref(0)
 
+// Blockchain stats
+const blockchainStats = ref({ successCount: 0, failedCount: 0, pendingCount: 0 })
+const blockchainLoading = ref(false)
+const blockchainLastUpdated = ref('')
+
+const requests = ref([])
 const isImageModalOpen = ref(false)
 const previewImage = ref('')
 const isRejectModalOpen = ref(false)
 const rejectRequestId = ref('')
 const rejectReason = ref('')
 
-const loadData = () => {
-  // refresh logic
+const loadData = async () => {
+  try {
+    // Load role upgrade requests
+    const { data } = await axiosClient.get('/accounts/role-requests?status=PENDING')
+    requests.value = data.content || data || []
+    pendingCount.value = requests.value.length
+  } catch {
+    // ignore
+  }
+  try {
+    const { data } = await axiosClient.get('/accounts?size=1')
+    totalUsers.value = data.totalElements || 0
+  } catch { /* ignore */ }
+  try {
+    const { data } = await axiosClient.get('/farms?size=1')
+    totalFarms.value = data.totalElements || 0
+  } catch { /* ignore */ }
+
+  loadBlockchainStats()
+}
+
+const loadBlockchainStats = async () => {
+  blockchainLoading.value = true
+  try {
+    const { data } = await axiosClient.get('/blockchain/stats')
+    blockchainStats.value = {
+      successCount: data.successCount || data.SUCCESS || 0,
+      failedCount:  data.failedCount  || data.FAILED  || 0,
+      pendingCount: data.pendingCount || data.PENDING  || 0,
+    }
+    blockchainLastUpdated.value = new Date().toLocaleTimeString('vi-VN')
+  } catch {
+    // keep zeros if API not available
+  } finally {
+    blockchainLoading.value = false
+  }
+}
+
+const goToTransactions = (status) => {
+  router.push({ name: 'admin-transactions', query: { status } })
 }
 
 const showImageModal = (src) => {
@@ -198,11 +300,14 @@ const showImageModal = (src) => {
   isImageModalOpen.value = true
 }
 
-const approveRequest = (id) => {
-  if (confirm('Bạn có chắc chắn muốn duyệt yêu cầu này?')) {
-    requests.value = requests.value.filter(r => r.requestId !== id)
-    pendingCount.value--
+const approveRequest = async (id) => {
+  if (!confirm('Bạn có chắc chắn muốn duyệt yêu cầu này?')) return
+  try {
+    await axiosClient.patch(`/accounts/role-requests/${id}/approve`)
+    await loadData()
     alert('Đã duyệt thành công!')
+  } catch {
+    alert('Lỗi khi duyệt yêu cầu.')
   }
 }
 
@@ -212,16 +317,26 @@ const openRejectModal = (id) => {
   isRejectModalOpen.value = true
 }
 
-const confirmReject = () => {
+const confirmReject = async () => {
   if (!rejectReason.value.trim()) {
-    alert("Vui lòng nhập lý do từ chối!")
+    alert('Vui lòng nhập lý do từ chối!')
     return
   }
-  requests.value = requests.value.filter(r => r.requestId !== rejectRequestId.value)
-  pendingCount.value--
-  isRejectModalOpen.value = false
-  alert('Đã từ chối yêu cầu.')
+  try {
+    await axiosClient.patch(`/accounts/role-requests/${rejectRequestId.value}/reject`, {
+      reason: rejectReason.value
+    })
+    isRejectModalOpen.value = false
+    await loadData()
+    alert('Đã từ chối yêu cầu.')
+  } catch {
+    alert('Lỗi khi từ chối yêu cầu.')
+  }
 }
+
+onMounted(() => {
+  loadData()
+})
 </script>
 
 <style scoped>
@@ -241,4 +356,20 @@ const confirmReject = () => {
   border: 1px solid #d2d6da;
   padding: 0.5rem;
 }
+
+/* Blockchain stat cards */
+.blockchain-stat-card {
+  border-radius: 12px;
+  padding: 1rem 1.2rem;
+  cursor: pointer;
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+.blockchain-stat-card:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,0.12); }
+.success-card { background: linear-gradient(135deg, #d1fae5, #a7f3d0); border: 1px solid #6ee7b7; }
+.failed-card  { background: linear-gradient(135deg, #fee2e2, #fecaca); border: 1px solid #fca5a5; }
+.pending-card { background: linear-gradient(135deg, #fef3c7, #fde68a); border: 1px solid #fcd34d; }
+.stat-label { font-size: 0.8rem; font-weight: 600; margin-bottom: 2px; color: #374151; }
+.stat-value { font-size: 2rem; font-weight: 700; margin: 0; color: #111827; }
+.stat-icon  { font-size: 2.5rem; }
+.stat-hint  { font-size: 0.72rem; color: #6b7280; }
 </style>

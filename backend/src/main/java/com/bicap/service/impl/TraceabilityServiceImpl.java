@@ -2,6 +2,7 @@ package com.bicap.service.impl;
 
 import com.bicap.dto.response.traceability.TraceabilityActivityResponse;
 import com.bicap.dto.response.traceability.TraceabilityResponse;
+import com.bicap.dto.response.blockchain.BlockchainVerificationResponse;
 import com.bicap.entity.BlockchainTransaction;
 import com.bicap.entity.ProductBatch;
 import com.bicap.entity.SeasonActivity;
@@ -9,6 +10,7 @@ import com.bicap.exception.ResourceNotFoundException;
 import com.bicap.repository.BlockchainTransactionRepository;
 import com.bicap.repository.ProductBatchRepository;
 import com.bicap.service.TraceabilityService;
+import com.bicap.service.BlockchainService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,6 +29,13 @@ public class TraceabilityServiceImpl implements TraceabilityService {
 
     private final BlockchainTransactionRepository
             blockchainTransactionRepository;
+
+        private final BlockchainService blockchainService;
+
+        @Override
+        public BlockchainVerificationResponse verifyByBatchId(Long batchId) {
+                return blockchainService.verifyProductBatch(batchId);
+        }
 
     @Override
     public TraceabilityResponse getByBatchId(Long batchId) {

@@ -1,182 +1,231 @@
 <template>
-  <div class="container-fluid py-2">
-    <div class="card my-3">
+  <div class="container-fluid py-4">
+
+    <!-- Filter bar -->
+    <div class="card mb-4">
       <div class="card-body p-3">
-        <form @submit.prevent="loadData" class="row align-items-center">
-          <div class="col-md-6">
-            <div class="input-group input-group-outline w-100">
-              <input type="text" class="form-control" v-model="keyword" placeholder="Tìm tên SP cần duyệt..." />
-            </div>
+        <div class="row gx-2 gy-2 align-items-end">
+          <div class="col-md-4">
+            <label class="form-label text-xs mb-1">Tìm theo Transaction Hash</label>
+            <input
+              v-model="filter.txHash"
+              type="text"
+              class="form-control form-control-sm"
+              placeholder="Nhập hoặc dán TxHash..."
+              @input="debouncedLoad"
+            />
           </div>
-          <div class="col-md-2">
-            <button type="submit" class="btn bg-gradient-dark w-100 mb-0">Tìm kiếm</button>
+          <div class="col-md-3">
+            <label class="form-label text-xs mb-1">Loại dữ liệu</label>
+            <select v-model="filter.entityType" class="form-select form-select-sm" @change="loadData">
+              <option value="">-- Tất cả --</option>
+              <option value="ProductBatch">ProductBatch</option>
+              <option value="SeasonActivity">SeasonActivity</option>
+            </select>
           </div>
-        </form>
+          <div class="col-md-3">
+            <label class="form-label text-xs mb-1">Trạng thái</label>
+            <select v-model="filter.status" class="form-select form-select-sm" @change="loadData">
+              <option value="">-- Tất cả --</option>
+              <option value="SUCCESS">SUCCESS</option>
+              <option value="PENDING">PENDING</option>
+              <option value="FAILED">FAILED</option>
+            </select>
+          </div>
+          <div class="col-md-2 d-flex gap-1">
+            <button class="btn btn-sm bg-gradient-dark mb-0 w-100" @click="loadData">Lọc</button>
+            <button class="btn btn-sm btn-outline-secondary mb-0" title="Làm mới" @click="resetFilter">↺</button>
+          </div>
+        </div>
+        <small class="text-muted mt-1 d-block">Cập nhật lúc {{ lastUpdated }}</small>
       </div>
     </div>
 
-    <div class="row">
-      <div class="col-12">
-        <div class="card my-4">
-          <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
-            <div class="bg-gradient-warning shadow-warning border-radius-lg pt-4 pb-3 px-3">
-              <h6 class="text-white text-capitalize ps-3 mb-0">Danh sách chờ duyệt (Pending)</h6>
-            </div>
-          </div>
-          <div class="card-body px-0 pb-2">
-            <div class="table-responsive p-0">
-              <table class="table align-items-center mb-0">
-                <thead>
-                  <tr>
-                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Sản phẩm</th>
-                    <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Nguồn gốc (Farm)</th>
-                    <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Giá đề xuất</th>
-                    <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Trạng thái</th>
-                    <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Xét duyệt</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr v-if="!products || products.length === 0">
-                    <td colspan="5" class="text-center py-4 text-secondary">Không có sản phẩm nào đang chờ duyệt.</td>
-                  </tr>
-                  <tr v-for="p in products" :key="p.productId">
-                    <td>
-                      <div class="d-flex px-3 py-1">
-                        <div>
-                          <img :src="p.imageUrl || '/admin-assets/img/product-placeholder.jpg'" class="avatar avatar-sm me-3 border-radius-lg" alt="img" style="object-fit: cover;">
-                        </div>
-                        <div class="d-flex flex-column justify-content-center">
-                          <h6 class="mb-0 text-sm">{{ p.productName }}</h6>
-                          <p class="text-xs text-secondary mb-0">{{ p.categoryName || 'Chưa phân loại' }}</p>
-                        </div>
-                      </div>
-                    </td>
-                    <td>
-                      <p class="text-xs font-weight-bold mb-0">{{ p.farmName || 'Unknown Farm' }}</p>
-                      <p class="text-xs text-secondary mb-0">Chủ trại: {{ p.ownerName || 'Unknown' }}</p>
-                    </td>
-                    <td class="align-middle text-center">
-                      <span class="text-secondary text-xs font-weight-bold">
-                        {{ (p.price || 0).toLocaleString('vi-VN') }} VND
-                      </span>
-                    </td>
-                    <td class="align-middle text-center text-sm">
-                      <span class="badge badge-sm bg-gradient-warning">Đang chờ duyệt</span>
-                    </td>
-                    <td class="align-middle text-center">
-                      <button class="btn btn-link text-info px-1 mb-0" @click="showDetails(p)" title="Xem chi tiết">
-                        <i class="material-symbols-rounded text-sm">visibility</i>
-                      </button>
+    <!-- Table -->
+    <div class="card">
+      <div class="card-header p-0 position-relative mt-n4 mx-3 z-index-2">
+        <div class="bg-gradient-dark shadow-dark border-radius-lg pt-4 pb-3 d-flex justify-content-between align-items-center px-3">
+          <h6 class="text-white mb-0">⛓️ Giao dịch Blockchain</h6>
+          <button class="btn btn-sm btn-outline-white mb-0" @click="loadData">
+            <i class="material-symbols-rounded text-sm">refresh</i> Làm mới
+          </button>
+        </div>
+      </div>
+      <div class="card-body px-0 pb-2">
+        <!-- Loading skeleton -->
+        <div v-if="isLoading" class="p-4">
+          <div v-for="i in 5" :key="i" class="skeleton-row mb-2"></div>
+        </div>
 
-                      <button class="btn btn-sm btn-outline-success mb-0 mx-1" @click="approveProduct(p)" title="Duyệt lên sàn">
-                        <i class="material-symbols-rounded text-sm">check_circle</i> Duyệt
-                      </button>
+        <!-- Error -->
+        <div v-else-if="errorMessage" class="alert alert-danger mx-3 mt-3">
+          <strong>Lỗi:</strong> {{ errorMessage }}
+          <button class="btn btn-sm btn-outline-danger ms-2" @click="loadData">Thử lại</button>
+        </div>
 
-                      <button class="btn btn-sm btn-outline-danger mb-0" @click="openRejectModal(p)" title="Từ chối">
-                        <i class="material-symbols-rounded text-sm">cancel</i> Từ chối
-                      </button>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-            
-            <div class="px-3 py-3" v-if="totalPages > 1">
-              <nav aria-label="Page navigation">
-                <ul class="pagination pagination-sm justify-content-end mb-0">
-                  <li v-for="i in totalPages" :key="i" class="page-item" :class="{ active: i - 1 === page }">
-                    <a class="page-link" href="#" @click.prevent="goToPage(i - 1)">{{ i }}</a>
-                  </li>
-                </ul>
-              </nav>
-            </div>
-          </div>
+        <!-- Empty state -->
+        <div v-else-if="transactions.length === 0" class="text-center py-5 text-muted">
+          <i class="material-symbols-rounded" style="font-size:3rem">search_off</i>
+          <p class="mt-2">Không có giao dịch nào phù hợp bộ lọc.</p>
+        </div>
+
+        <!-- Data table -->
+        <div v-else class="table-responsive p-0">
+          <table class="table align-items-center mb-0">
+            <thead>
+              <tr>
+                <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Transaction Hash</th>
+                <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Data Hash</th>
+                <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Loại dữ liệu</th>
+                <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Đối tượng</th>
+                <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Trạng thái</th>
+                <th class="text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Thời gian</th>
+                <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Hành động</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="tx in transactions" :key="tx.id || tx.txHash">
+                <td class="ps-3">
+                  <HashDisplay :hash="tx.blockchainTxHash || tx.txHash" :prefix-len="8" :suffix-len="6" />
+                </td>
+                <td>
+                  <HashDisplay :hash="tx.dataHash" :prefix-len="8" :suffix-len="6" />
+                </td>
+                <td>
+                  <span
+                    class="badge badge-sm"
+                    :class="tx.entityType === 'ProductBatch' ? 'bg-gradient-info' : 'bg-gradient-success'"
+                  >
+                    {{ tx.entityType || tx.recordType || '—' }}
+                  </span>
+                </td>
+                <td>
+                  <code class="text-xs">{{ tx.entityId || tx.objectCode || '—' }}</code>
+                </td>
+                <td class="text-center">
+                  <BlockchainStatusBadge :status="tx.blockchainStatus || tx.status" size="sm" />
+                </td>
+                <td>
+                  <span class="text-xs text-secondary">{{ formatVnDateTime(tx.createdAt || tx.timestamp) }}</span>
+                </td>
+                <td class="text-center text-nowrap">
+                  <button
+                    class="btn btn-link text-info px-1 mb-0"
+                    title="Xem chi tiết"
+                    @click="openDetail(tx)"
+                  >
+                    <i class="material-symbols-rounded text-sm">visibility</i>
+                  </button>
+                  <VerifyButton
+                    v-if="tx.blockchainTxHash || tx.txHash"
+                    :is-verifying="verifyingTx[tx.id]"
+                    label=""
+                    @verify="verifyTx(tx)"
+                  />
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Pagination -->
+        <div class="px-3 py-3" v-if="totalPages > 1">
+          <nav>
+            <ul class="pagination pagination-sm justify-content-end mb-0">
+              <li class="page-item" :class="{ disabled: page === 0 }">
+                <a class="page-link" href="#" @click.prevent="goToPage(page - 1)">‹</a>
+              </li>
+              <li v-for="i in Math.min(totalPages, 10)" :key="i" class="page-item" :class="{ active: i - 1 === page }">
+                <a class="page-link" href="#" @click.prevent="goToPage(i - 1)">{{ i }}</a>
+              </li>
+              <li class="page-item" :class="{ disabled: page >= totalPages - 1 }">
+                <a class="page-link" href="#" @click.prevent="goToPage(page + 1)">›</a>
+              </li>
+            </ul>
+          </nav>
         </div>
       </div>
     </div>
 
-    <!-- Modals -->
-    <div v-if="isRejectModalOpen" class="modal fade show" style="display: block; background: rgba(0,0,0,0.5)" tabindex="-1">
-      <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title text-danger">Từ chối sản phẩm: <span>{{ rejectProductName }}</span></h5>
-            <button type="button" class="btn-close text-dark" @click="isRejectModalOpen = false">&times;</button>
-          </div>
-          <div class="modal-body">
-            <div class="input-group input-group-outline mb-3 flex-column">
-              <label class="form-label">Lý do từ chối (Bắt buộc)</label>
-              <input type="text" class="form-control w-100" v-model="rejectReason" required>
-            </div>
-            <p class="text-xs text-muted">Sản phẩm sẽ bị trả về trạng thái REJECTED.</p>
-          </div>
-          <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" @click="isRejectModalOpen = false">Hủy</button>
-            <button type="button" class="btn bg-gradient-danger" @click="confirmReject">Xác nhận Từ chối</button>
-          </div>
-        </div>
-      </div>
-    </div>
-    
-    <div v-if="selectedProduct" class="modal fade show" style="display: block; background: rgba(0,0,0,0.5)" tabindex="-1">
-      <div class="modal-dialog modal-lg modal-dialog-centered">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title">Chi tiết sản phẩm chờ duyệt</h5>
-            <button type="button" class="btn-close text-dark" @click="selectedProduct = null">&times;</button>
-          </div>
-          <div class="modal-body">
-            <div class="row">
-              <div class="col-md-4">
-                <img :src="selectedProduct.imageUrl || '/admin-assets/img/product-placeholder.jpg'" class="img-fluid border-radius-lg shadow-sm" style="width: 100%; object-fit: cover;">
-              </div>
-              <div class="col-md-8">
-                <h4>{{ selectedProduct.productName }}</h4>
-                <p class="text-sm text-secondary mb-1">Trang trại: <b class="text-dark">{{ selectedProduct.farmName }}</b></p>
-                <p class="text-sm text-secondary mb-1">Owner: <span>{{ selectedProduct.ownerName }}</span></p>
-                <p class="text-sm text-secondary mb-3">Giá đề xuất: <b class="text-success" style="font-size: 1.2rem;">{{ (selectedProduct.price || 0).toLocaleString('vi-VN') }} VND</b></p>
-                
-                <h6 class="text-uppercase text-xs font-weight-bolder">Mô tả:</h6>
-                <p class="text-sm text-dark bg-light p-2 border-radius-md">{{ selectedProduct.description || 'Không có mô tả.' }}</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+    <!-- Transaction Detail Drawer -->
+    <TxDetailDrawer
+      :open="drawer.open"
+      :tx="drawer.tx"
+      :verify-endpoint="drawer.verifyEndpoint"
+      @close="drawer.open = false"
+    />
   </div>
 </template>
 
 <script setup>
-import { onMounted, ref } from 'vue'
+import { onMounted, reactive, ref } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import axiosClient from '@/api/axiosClient'
+import BlockchainStatusBadge from '@/components/blockchain/BlockchainStatusBadge.vue'
+import HashDisplay from '@/components/blockchain/HashDisplay.vue'
+import VerifyButton from '@/components/blockchain/VerifyButton.vue'
+import TxDetailDrawer from '@/components/blockchain/TxDetailDrawer.vue'
 
-const products = ref([])
-const keyword = ref('')
+const route = useRoute()
+const router = useRouter()
+
+const transactions = ref([])
+const isLoading = ref(false)
+const errorMessage = ref('')
 const page = ref(0)
-const size = ref(10)
+const size = ref(15)
 const totalPages = ref(1)
+const lastUpdated = ref('')
+const verifyingTx = reactive({})
 
-const isRejectModalOpen = ref(false)
-const rejectProductId = ref('')
-const rejectProductName = ref('')
-const rejectReason = ref('')
-const selectedProduct = ref(null)
+const filter = reactive({
+  txHash: route.query.txHash || '',
+  entityType: route.query.type || '',
+  status: route.query.status || '',
+})
+
+const drawer = reactive({ open: false, tx: null, verifyEndpoint: '' })
+
+// Debounce search
+let debounceTimer = null
+const debouncedLoad = () => {
+  clearTimeout(debounceTimer)
+  debounceTimer = setTimeout(() => loadData(), 300)
+}
+
+const syncUrl = () => {
+  router.replace({
+    query: {
+      ...(filter.txHash     ? { txHash: filter.txHash }         : {}),
+      ...(filter.entityType ? { type: filter.entityType }        : {}),
+      ...(filter.status     ? { status: filter.status }          : {}),
+      ...(page.value > 0    ? { page: String(page.value) }       : {}),
+    }
+  })
+}
 
 const loadData = async () => {
+  isLoading.value = true
+  errorMessage.value = ''
+  syncUrl()
   try {
-    const { data } = await axiosClient.get('/products', {
+    const { data } = await axiosClient.get('/blockchain/transactions', {
       params: {
         page: page.value,
         size: size.value,
-        keyword: keyword.value || undefined,
-        status: 'PENDING'
+        txHash:     filter.txHash     || undefined,
+        entityType: filter.entityType || undefined,
+        status:     filter.status     || undefined,
       }
     })
-    products.value = data.content || data || []
-    totalPages.value = data.totalPages || 1
+    transactions.value = data.content || data || []
+    totalPages.value   = data.totalPages || 1
+    lastUpdated.value  = new Date().toLocaleTimeString('vi-VN')
   } catch (e) {
-    console.error(e)
+    errorMessage.value = e.response?.data?.message || 'Không thể tải danh sách giao dịch blockchain.'
+    transactions.value = []
+  } finally {
+    isLoading.value = false
   }
 }
 
@@ -187,46 +236,58 @@ const goToPage = (p) => {
   }
 }
 
-const approveProduct = async (p) => {
-  if (!confirm(`Bạn có chắc chắn muốn DUYỆT sản phẩm "${p.productName}" lên sàn?`)) return
+const resetFilter = () => {
+  Object.assign(filter, { txHash: '', entityType: '', status: '' })
+  page.value = 0
+  loadData()
+}
+
+const openDetail = (tx) => {
+  drawer.tx = tx
+  drawer.verifyEndpoint = tx.entityType === 'ProductBatch'
+    ? `/blockchain/verify/product-batch/${tx.entityId}`
+    : `/blockchain/verify/season-activity/${tx.entityId}`
+  drawer.open = true
+}
+
+const verifyTx = async (tx) => {
+  const id = tx.id || tx.txHash
+  verifyingTx[id] = true
   try {
-    await axiosClient.patch(`/products/${p.productId}/status`)
-    alert("Đã duyệt sản phẩm thành công!")
-    loadData()
+    const endpoint = tx.entityType === 'ProductBatch'
+      ? `/blockchain/verify/product-batch/${tx.entityId}`
+      : `/blockchain/verify/season-activity/${tx.entityId}`
+    await axiosClient.get(endpoint)
+    openDetail(tx) // show detail with result
   } catch (e) {
-    console.error(e)
-    alert("Lỗi khi duyệt sản phẩm.")
+    openDetail(tx)
+  } finally {
+    verifyingTx[id] = false
   }
 }
 
-const openRejectModal = (p) => {
-  rejectProductId.value = p.productId
-  rejectProductName.value = p.productName
-  rejectReason.value = ''
-  isRejectModalOpen.value = true
-}
-
-const confirmReject = async () => {
-  if (!rejectReason.value.trim()) {
-    alert("Vui lòng nhập lý do từ chối!")
-    return
-  }
-  try {
-    await axiosClient.patch(`/products/${rejectProductId.value}/status`)
-    alert("Đã từ chối sản phẩm!")
-    isRejectModalOpen.value = false
-    loadData()
-  } catch (e) {
-    console.error(e)
-    alert("Lỗi khi từ chối sản phẩm.")
-  }
-}
-
-const showDetails = (p) => {
-  selectedProduct.value = p
+const formatVnDateTime = (val) => {
+  if (!val) return '—'
+  return new Date(val).toLocaleString('vi-VN', {
+    day: '2-digit', month: '2-digit', year: 'numeric',
+    hour: '2-digit', minute: '2-digit', second: '2-digit'
+  })
 }
 
 onMounted(() => {
+  if (route.query.page) page.value = parseInt(route.query.page) || 0
   loadData()
 })
 </script>
+
+<style scoped>
+.skeleton-row {
+  height: 36px;
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.2s infinite;
+  border-radius: 6px;
+}
+@keyframes shimmer { 0% { background-position: 200% 0 } 100% { background-position: -200% 0 } }
+</style>
+

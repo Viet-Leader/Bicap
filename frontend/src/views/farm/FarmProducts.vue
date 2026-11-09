@@ -82,25 +82,71 @@
     </div>
 
     <div class="card">
-      <div class="card-header"><h5 class="mb-0">Sản phẩm của tôi</h5></div>
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">Sản phẩm của tôi</h5>
+        <span class="text-muted small">{{ products.length }} sản phẩm</span>
+      </div>
       <div class="table-responsive">
         <table class="table align-items-center mb-0">
           <thead>
             <tr>
               <th>Sản phẩm</th>
-              <th>Mã batch gần nhất</th>
+              <th>Mã batch</th>
               <th>Hạng</th>
               <th>Đơn giá</th>
+              <th class="text-center">Blockchain</th>
+              <th class="text-center">Transaction Hash</th>
+              <th class="text-center">Hành động</th>
             </tr>
           </thead>
           <tbody>
+            <tr v-if="loading"><td colspan="7" class="text-center py-4"><span class="spinner-border spinner-border-sm me-2"></span>Đang tải...</td></tr>
+            <tr v-else-if="products.length === 0"><td colspan="7" class="text-center text-muted py-4">Chưa có sản phẩm.</td></tr>
             <tr v-for="product in products" :key="product.productId">
-              <td>{{ product.productName }}</td>
-              <td>{{ product.batchCode || 'Chưa có lô' }}</td>
-              <td>{{ product.grade || '-' }}</td>
-              <td>{{ product.unitPrice ? Number(product.unitPrice).toLocaleString('vi-VN') : '-' }}</td>
+              <td>
+                <span class="text-sm font-weight-bold">{{ product.productName }}</span>
+                <p class="text-xs text-secondary mb-0">{{ product.cropName || '' }}</p>
+              </td>
+              <td><code class="text-xs">{{ product.batchCode || '—' }}</code></td>
+              <td><span class="badge badge-sm bg-gradient-secondary">{{ product.grade || '—' }}</span></td>
+              <td class="text-xs">{{ product.unitPrice ? Number(product.unitPrice).toLocaleString('vi-VN') + ' ₫' : '—' }}</td>
+              <td class="text-center">
+                <!-- Kết quả verify inline nếu đã verify -->
+                <BlockchainStatusBadge
+                  v-if="verifyResults[product.batchId]"
+                  :status="verifyResults[product.batchId]"
+                  size="sm"
+                />
+                <!-- Trạng thái gốc từ server nếu chưa verify -->
+                <BlockchainStatusBadge
+                  v-else
+                  :status="product.blockchainStatus || (product.blockchainTxHash ? 'SUCCESS' : 'NOT_RECORDED')"
+                  size="sm"
+                />
+              </td>
+              <td class="text-center">
+                <HashDisplay :hash="product.blockchainTxHash || product.txHash" :prefix-len="6" :suffix-len="4" />
+              </td>
+              <td class="text-center text-nowrap">
+                <!-- Nút Verify -->
+                <VerifyButton
+                  v-if="product.batchId && (product.blockchainTxHash || product.txHash)"
+                  :is-verifying="verifyingBatch[product.batchId]"
+                  label="Verify"
+                  @verify="verifyBatch(product)"
+                />
+                <!-- Nút Ghi Blockchain nếu NOT_RECORDED -->
+                <button
+                  v-else-if="product.batchId && !product.blockchainTxHash"
+                  class="btn btn-sm btn-outline-primary mb-0"
+                  :disabled="product.recordingBlockchain"
+                  @click="recordBlockchain(product)"
+                >
+                  <span v-if="product.recordingBlockchain" class="spinner-border spinner-border-sm me-1"></span>
+                  {{ product.recordingBlockchain ? 'Đang ghi...' : '⛓️ Ghi Blockchain' }}
+                </button>
+              </td>
             </tr>
-            <tr v-if="!loading && products.length === 0"><td colspan="4" class="text-center text-muted py-4">Chưa có sản phẩm.</td></tr>
           </tbody>
         </table>
       </div>
@@ -111,6 +157,9 @@
 <script setup>
 import { onMounted, reactive, ref } from 'vue';
 import axiosClient from '@/api/axiosClient';
+import BlockchainStatusBadge from '@/components/blockchain/BlockchainStatusBadge.vue';
+import HashDisplay from '@/components/blockchain/HashDisplay.vue';
+import VerifyButton from '@/components/blockchain/VerifyButton.vue';
 
 const products = ref([]);
 const crops = ref([]);
@@ -121,6 +170,45 @@ const errorMessage = ref('');
 const successMessage = ref('');
 const selectedImages = ref([]);
 const batchForm = reactive({ cropId: '', productName: '', seasonId: '', grade: 'A', quantity: null, unitPrice: null });
+
+// Trạng thái verify cho từng batch
+const verifyingBatch = reactive({}); // { [batchId]: boolean }
+const verifyResults  = reactive({}); // { [batchId]: 'VERIFIED' | 'MISMATCH' | ... }
+
+const verifyBatch = async (batch) => {
+  if (!batch.batchId) return;
+  verifyingBatch[batch.batchId] = true;
+  verifyResults[batch.batchId] = '';
+  errorMessage.value = '';
+  try {
+    const { data } = await axiosClient.get(`/product-batches/${batch.batchId}/verify`);
+    verifyResults[batch.batchId] = data?.status || data?.verificationStatus || 'VERIFIED';
+  } catch (e) {
+    verifyResults[batch.batchId] = e.response?.status === 404 ? 'NOT_RECORDED' : 'CONNECTION_ERROR';
+    errorMessage.value = e.response?.data?.message || 'Không thể xác minh dữ liệu trên blockchain.';
+  } finally {
+    verifyingBatch[batch.batchId] = false;
+  }
+};
+
+const recordBlockchain = async (batch) => {
+  if (!confirm(`Ghi lô "${batch.productName}" lên blockchain?`)) return;
+  errorMessage.value = '';
+  successMessage.value = '';
+  batch.recordingBlockchain = true;
+  try {
+    const { data } = await axiosClient.post(`/product-batches/${batch.batchId}/blockchain`);
+    if (!data?.txHash) {
+      throw new Error(data?.errorMessage || 'Blockchain chưa trả về transaction hash.');
+    }
+    successMessage.value = `Đã ghi blockchain thành công. Transaction hash: ${data.txHash}`;
+    await loadData();
+  } catch (e) {
+    errorMessage.value = e.response?.data?.message || e.message || 'Không thể ghi blockchain.';
+  } finally {
+    batch.recordingBlockchain = false;
+  }
+};
 
 const handleImageSelection = (event) => {
   selectedImages.value = Array.from(event.target.files || []);

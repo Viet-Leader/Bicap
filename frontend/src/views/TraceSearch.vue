@@ -11,8 +11,12 @@ const scanError = ref('')
 const scanningImage = ref(false)
 
 const searchBatch = () => {
-  if (!batchId.value.trim()) return
-  router.push(`/trace/${batchId.value.trim()}`)
+    const value = batchId.value.trim()
+    if (!/^\d+$/.test(value) || Number(value) < 1) {
+        scanError.value = 'Mã lô phải là số nguyên dương.'
+        return
+    }
+    router.push(`/trace/${encodeURIComponent(value)}`)
 }
 
 const openImagePicker = () => {
@@ -56,6 +60,9 @@ const scanImage = async (event) => {
 
         const traceId = extractTraceId(result.data)
         if (!traceId) throw new Error('Mã QR không chứa mã truy xuất hợp lệ.')
+        if (!/^\d+$/.test(traceId) || Number(traceId) < 1) {
+            throw new Error('Mã QR không chứa batch ID hợp lệ. Batch ID phải là số nguyên dương.')
+        }
         batchId.value = traceId
         router.push(`/trace/${encodeURIComponent(traceId)}`)
     } catch (error) {
@@ -84,8 +91,8 @@ const scanImage = async (event) => {
                 <div class="card-body p-4">
                     <form @submit.prevent="searchBatch">
                         <div class="mb-3">
-                            <label class="form-label font-weight-bold">Mã Lô Hàng / Batch ID</label>
-                            <input type="text" v-model="batchId" class="form-control form-control-lg bg-light border-0" placeholder="VD: BATCH-001" required>
+                            <label class="form-label font-weight-bold" for="batch-id">Mã lô hàng / Batch ID</label>
+                            <input id="batch-id" type="text" inputmode="numeric" v-model="batchId" class="form-control form-control-lg bg-light border-0" placeholder="Ví dụ: 1" required>
                         </div>
                         <button type="submit" class="btn btn-bicap btn-lg w-100">
                             🔍 Tra cứu thông tin
@@ -113,23 +120,11 @@ const scanImage = async (event) => {
                 </div>
             </div>
 
-            <!-- Suggestion Card -->
-            <div class="card border-0 bg-gray-100">
-                <div class="card-header bg-transparent border-0 pt-3 pb-0">
-                    <h6 class="font-weight-bold text-muted mb-0">Mã mẫu để thử nghiệm:</h6>
-                </div>
-                <div class="card-body">
-                    <div class="row g-2">
-                        <div class="col-6 col-md-4">
-                            <router-link to="/trace/BATCH-001" class="btn btn-outline-success btn-sm w-100">BATCH-001</router-link>
-                        </div>
-                        <div class="col-6 col-md-4">
-                            <router-link to="/trace/LOT-2024-001" class="btn btn-outline-success btn-sm w-100">LOT-2024-001</router-link>
-                        </div>
-                        <div class="col-6 col-md-4">
-                            <router-link to="/trace/FARM-VN-001" class="btn btn-outline-success btn-sm w-100">FARM-VN-001</router-link>
-                        </div>
-                    </div>
+            <div class="trace-note">
+                <span class="material-symbols-rounded" aria-hidden="true">verified_user</span>
+                <div>
+                    <h6 class="font-weight-bold mb-1">Tra cứu có đối soát</h6>
+                    <p class="text-muted small mb-0">Batch ID được lấy từ mã QR của sản phẩm và đối chiếu với dữ liệu truy xuất của BICAP.</p>
                 </div>
             </div>
 
@@ -201,4 +196,14 @@ const scanImage = async (event) => {
 .divider { display: flex; align-items: center; text-align: center; margin: 1.5rem 0; }
 .divider::before, .divider::after { content: ''; flex: 1; border-bottom: 1px solid #dee2e6; }
 .divider-text { padding: 0 1rem; color: #6c757d; font-size: 0.875rem; }
+.trace-note {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    padding: 1rem;
+    border: 1px solid #d9f0df;
+    border-radius: 0.75rem;
+    background: #f7fff9;
+}
+.trace-note .material-symbols-rounded { color: #2e7d32; }
 </style>
