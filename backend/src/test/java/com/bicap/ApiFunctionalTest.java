@@ -40,6 +40,7 @@ class ApiFunctionalTest {
     @Mock private AccountService accountService;
     @Mock private AuthService authService;
     @Mock private CartService cartService;
+    @Mock private BlockchainService blockchainService;
     @Mock private CropService cropService;
     @Mock private FarmService farmService;
     @Mock private FarmingSeasonService farmingSeasonService;
@@ -60,6 +61,7 @@ class ApiFunctionalTest {
         mockMvc = MockMvcBuilders.standaloneSetup(
                 new AccountController(accountService),
                 new AuthController(authService),
+                new BlockchainController(blockchainService),
                 new CartController(cartService),
                 new CropController(cropService),
                 new FarmController(farmService),
@@ -77,6 +79,26 @@ class ApiFunctionalTest {
                 new PageableHandlerMethodArgumentResolver()
         )
         .build();
+    }
+
+    // ============================================================
+    // BLOCKCHAIN
+    // ============================================================
+
+    @Test
+    void verifyProductBatchFromBlockchain_shouldReturnOk() throws Exception {
+        mockMvc.perform(get("/api/blockchain/verify/product-batch/1"))
+                .andExpect(status().isOk());
+
+        verify(blockchainService).verifyProductBatch(1L);
+    }
+
+    @Test
+    void verifySeasonActivityFromBlockchain_shouldReturnOk() throws Exception {
+        mockMvc.perform(get("/api/blockchain/verify/season-activity/1"))
+                .andExpect(status().isOk());
+
+        verify(blockchainService).verifySeasonActivity(1L);
     }
 
     // ============================================================

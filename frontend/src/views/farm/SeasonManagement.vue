@@ -426,7 +426,7 @@ const verifyActivity = async (evt) => {
   verifyingActivity[evt.activityId] = true;
   verifyResults[evt.activityId] = '';
   try {
-    const { data } = await axiosClient.get(`/blockchain/verify/season-activity/${evt.activityId}`);
+    const { data } = await axiosClient.get(`/season-activities/${evt.activityId}/verify`);
     verifyResults[evt.activityId] = data?.status || data?.verificationStatus || 'VERIFIED';
   } catch (e) {
     verifyResults[evt.activityId] = e.response?.status === 404 ? 'NOT_RECORDED' : 'CONNECTION_ERROR';
